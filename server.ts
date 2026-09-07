@@ -93,6 +93,25 @@ async function startServer() {
     }
   });
 
+  
+  // MARS MOXIE environment shim: same-origin proxy for Gemini API (browser egress to googleapis is blocked in sandbox)
+  app.options('/gapi', (req: any, res: any) => { res.set('Access-Control-Allow-Origin','*').set('Access-Control-Allow-Headers','Content-Type,x-goog-api-key,Authorization').set('Access-Control-Allow-Methods','GET,POST,OPTIONS').sendStatus(204); });
+  app.use('/gapi', async (req: any, res: any) => {
+    try {
+      const targetPath = req.originalUrl.replace(/^\/gapi/, '');
+      const url = 'https://generativelanguage.googleapis.com' + targetPath;
+      const fetchOpts: any = { method: req.method, headers: { 'Content-Type': 'application/json' } };
+      const apiKey = req.headers['x-goog-api-key'] || req.query.key;
+      if (apiKey) fetchOpts.headers['x-goog-api-key'] = apiKey;
+      if (req.method !== 'GET' && req.method !== 'HEAD') fetchOpts.body = JSON.stringify(req.body);
+      const r = await fetch(url, fetchOpts);
+      const text = await r.text();
+      res.status(r.status).set('Content-Type', r.headers.get('content-type') || 'application/json').set('Access-Control-Allow-Origin', '*').set('Access-Control-Allow-Headers', 'Content-Type,x-goog-api-key,Authorization').set('Access-Control-Allow-Methods', 'GET,POST,OPTIONS').send(text);
+    } catch (e: any) {
+      res.status(502).json({ error: 'gemini proxy failed: ' + e.message });
+    }
+  });
+
   app.post('/api/auth/login', async (req, res) => {
     const { emailOrUsername, password } = req.body;
     try {
