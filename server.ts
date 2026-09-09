@@ -5,6 +5,7 @@ import Database from 'better-sqlite3';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import path from 'path';
+import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -49,12 +50,32 @@ async function startServer() {
 
   console.log(`Starting server in ${NODE_ENV} mode on port ${PORT}...`);
 
-  app.use(express.json());
+  app.use(express.json({ limit: '50mb' }));
   app.use(helmet());
 
   // API Routes
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString(), env: NODE_ENV });
+  });
+
+  app.post('/api/artifacts', async (req, res) => {
+    try {
+      const { app: appName, projectId, source, prompt, timestamp, generator, model, data, mimeType, structuredData } = req.body || {};
+      if (appName !== 'Hypatia' || !projectId || !source || !prompt || !data || generator !== 'Designer/Gemini') return res.status(400).json({ error: 'Invalid artifact payload' });
+      const safeProjectId = String(projectId).replace(/[^a-zA-Z0-9_-]/g, '_');
+      const safeSource = String(source).replace(/[^a-zA-Z0-9_-]/g, '_');
+      const dir = path.join(__dirname, 'artifacts', safeProjectId);
+      await fs.mkdir(dir, { recursive: true });
+      const imagePath = path.join(dir, `${Date.now()}-${safeSource}.png`);
+      const tempPath = `${imagePath}.tmp`;
+      await fs.writeFile(tempPath, Buffer.from(String(data).replace(/^data:image\/[^;]+;base64,/, ''), 'base64'));
+      await fs.rename(tempPath, imagePath);
+      const provenance = { app: appName, projectId: safeProjectId, source, prompt, timestamp: timestamp || new Date().toISOString(), generator, model, mimeType: mimeType || 'image/png', path: imagePath, structuredData };
+      await fs.writeFile(`${imagePath}.provenance.json`, JSON.stringify(provenance, null, 2));
+      res.status(201).json(provenance);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
   });
 
   app.post('/api/waitlist', async (req, res) => {

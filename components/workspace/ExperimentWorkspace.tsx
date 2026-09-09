@@ -8,8 +8,10 @@ import {
     executeStepWorkflow, 
     callGeminiStreamWithRetry,
     generateNodeSummary,
-    safeGetText
+    safeGetText,
+    generateLabImage
 } from '../../services';
+import { persistGeneratedArtifact } from '../../services/artifactService';
 import { WORKFLOW_STEPS, RESEARCH_QUESTION_SCHEMA, DATA_ANALYSIS_IMAGE_OUTPUT_SCHEMA, LITERATURE_REVIEW_SCHEMA } from '../../config';
 
 import { ExperimentRunner } from '../steps/runner/ExperimentRunner';
@@ -257,7 +259,16 @@ export const ExperimentWorkspace = () => {
 
             const nextStepId = activeStep < WORKFLOW_STEPS.length ? activeStep + 1 : activeStep;
             const updatedStepDataMap = { ...(activeExperiment.stepData || {}) };
-            updatedStepDataMap[activeStep] = { ...currentStepData, summary };
+            const source = `step-${activeStep}`;
+            const visualPrompt = `Create a scientific research deliverable for Hypatia ${source}: use a table, graph, plot, or research visual that accurately represents this completed step. Experiment: ${activeExperiment.title}. Field: ${activeExperiment.field}. Summary: ${summary}. Data/content: ${String(currentStepData.input || currentOutput).substring(0, 2000)}. Do not depict the application UI.`;
+            const imageData = await generateLabImage(visualPrompt);
+            if (!imageData) throw new Error('Gemini returned no scientific visual artifact.');
+            const artifact = await persistGeneratedArtifact({
+                app: 'Hypatia', projectId: activeExperiment.id, source, prompt: visualPrompt,
+                model: 'gemini-3.1-flash-image-preview', data: imageData,
+                structuredData: { step: activeStep, summary, input: String(currentStepData.input || '').substring(0, 4000), output: String(currentOutput).substring(0, 4000) }
+            });
+            updatedStepDataMap[activeStep] = { ...currentStepData, summary, visualArtifacts: [...(currentStepData.visualArtifacts || []), artifact] };
 
             if (activeStep === 6) {
                 const csvData = currentStepData.input || currentOutput; 
