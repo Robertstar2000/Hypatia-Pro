@@ -36,6 +36,22 @@ export const MifecoLanding: React.FC<MifecoLandingProps> = ({ user, onOpenDataba
           <button onClick={onLogout} className="btn btn-outline-danger btn-sm rounded-xl px-3 border-[rgba(255,255,255,0.1)] text-xs">LOGOUT</button>
         </div>
 
+        {/* Subscribe CTA (LIVE Stripe Payment Link) */}
+        <div className="d-flex flex-column flex-sm-row align-items-center justify-content-center gap-3 mb-5 p-3 rounded-3xl" style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(30,41,59,0.5)' }}>
+          <a
+            href="https://buy.stripe.com/6oUdRa3Q74HIaYigiw7Vm04"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-test="stripe-payment-link"
+            data-buy-button-id="buy_btn_1UEyGgLFWluMTxK7Mr8r8PH8"
+            className="btn btn-lg px-4 rounded-2xl fw-black tracking-widest"
+            style={{ background: 'linear-gradient(135deg, #22c55e, #06b6d4)', color: '#fff' }}
+          >
+            <i className="bi bi-stars me-2"></i> Sign up for a paid subscription — $49/MO
+          </a>
+          <span className="text-[10px] fw-bold tracking-widest uppercase text-[#94a3b8]">Secure live monthly checkout</span>
+        </div>
+
         <div className="row g-4 mb-4">
           <div className="col-lg-8">
             <div className="row g-4 h-100">
@@ -92,7 +108,8 @@ export const MifecoLanding: React.FC<MifecoLandingProps> = ({ user, onOpenDataba
               </div>
               
               <div className="mb-4">
-                <label className="d-block text-[10px] fw-black text-[#f8fafc] tracking-[0.2em] mb-2 uppercase">API Key</label>
+                <label className="d-block text-[10px] fw-black text-[#f8fafc] tracking-[0.2em] mb-1 uppercase">API Key</label>
+                <p className="text-[10px] text-[#64748b] font-semibold tracking-wider mb-2">To use your own key</p>
                 <div className="position-relative">
                   <input 
                     type={showKey ? "text" : "password"}
