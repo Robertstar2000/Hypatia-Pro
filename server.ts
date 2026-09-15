@@ -171,7 +171,7 @@ async function startServer() {
     });
   }
 
-  const server = app.listen(PORT, '0.0.0.0', () => {
+  const server = app.listen(PORT, '127.0.0.1', () => {
     console.log(`MIFECO Hub Server running on http://0.0.0.0:${PORT}`);
     console.log('Health check endpoint: http://0.0.0.0:' + PORT + '/api/health');
   });
