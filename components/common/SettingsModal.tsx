@@ -2,6 +2,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { getKeyStatus } from '../../services';
+import { RecoveryCodeManager } from '../auth/RecoveryFlow';
 
 interface SettingsModalProps {
     onClose: () => void;
@@ -44,6 +45,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                                 <label className="form-check-label" htmlFor="streamingSwitch">Real-time Data Streaming</label>
                             </div>
                         </div>
+                        <RecoveryCodeManager />
                         <div className="alert alert-info border-info border-opacity-25 bg-info bg-opacity-10 text-info small">
                             <i className="bi bi-info-circle-fill me-2"></i>
                             Settings are stored locally in your browser's persistent state.

@@ -2,21 +2,19 @@ import express from 'express';
 import helmet from 'helmet';
 import { createServer as createViteServer } from 'vite';
 import Database from 'better-sqlite3';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+
 import path from 'path';
 import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
+import { installSecureAuth, type AuthDb } from './secureAuth';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const JWT_SECRET = process.env.JWT_SECRET || 'mifeco-secret-key-2026';
-
 let db: Database.Database;
 try {
   console.log('Initializing database...');
-  const dbPath = process.env.NODE_ENV === 'production' ? '/tmp/mifeco.db' : 'mifeco.db';
+  const dbPath = process.env.AUTH_DB_PATH || path.join(__dirname, 'mifeco.db');
   db = new Database(dbPath);
   // Initialize Database
   db.exec(`
@@ -52,6 +50,14 @@ async function startServer() {
 
   app.use(express.json({ limit: '50mb' }));
   app.use(helmet());
+
+  const authDb: AuthDb = {
+    exec: async (sql) => { db.exec(sql); },
+    get: async (sql, params = []) => db.prepare(sql).get(...params),
+    all: async (sql, params = []) => db.prepare(sql).all(...params),
+    run: async (sql, params = []) => { const r = db.prepare(sql).run(...params); return { changes: r.changes, lastID: r.lastInsertRowid }; },
+  };
+  await installSecureAuth(app, authDb, 'password', true);
 
   // API Routes
   app.get('/api/health', (req, res) => {
@@ -94,25 +100,6 @@ async function startServer() {
     }
   });
 
-  app.post('/api/auth/signup', async (req, res) => {
-    const { username, email, password, geminiKey } = req.body;
-    try {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const stmt = db.prepare('INSERT INTO users (username, email, password, geminiKey) VALUES (?, ?, ?, ?)');
-      const info = stmt.run(username, email, hashedPassword, geminiKey || '');
-      
-      const user = { id: info.lastInsertRowid, username, email, geminiKey };
-      const token = jwt.sign(user, JWT_SECRET, { expiresIn: '24h' });
-      
-      res.status(201).json({ user, token });
-    } catch (error: any) {
-      if (error.code === 'SQLITE_CONSTRAINT') {
-        res.status(400).json({ error: 'Username or email already exists' });
-      } else {
-        res.status(500).json({ error: 'Internal server error' });
-      }
-    }
-  });
 
   
   // MARS MOXIE environment shim: same-origin proxy for Gemini API (browser egress to googleapis is blocked in sandbox)
@@ -133,29 +120,6 @@ async function startServer() {
     }
   });
 
-  app.post('/api/auth/login', async (req, res) => {
-    const { emailOrUsername, password } = req.body;
-    try {
-      const stmt = db.prepare('SELECT * FROM users WHERE email = ? OR username = ?');
-      const user: any = stmt.get(emailOrUsername, emailOrUsername);
-
-      if (!user) {
-        return res.status(401).json({ error: 'Invalid credentials' });
-      }
-
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) {
-        return res.status(401).json({ error: 'Invalid credentials' });
-      }
-
-      const userPayload = { id: user.id, username: user.username, email: user.email, geminiKey: user.geminiKey };
-      const token = jwt.sign(userPayload, JWT_SECRET, { expiresIn: '24h' });
-
-      res.json({ user: userPayload, token });
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  });
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== 'production') {

@@ -86,10 +86,11 @@ export const App = () => {
                      if (mounted) setIsAuthenticated(true);
                 }
 
-                // Check for existing session
-                const savedUser = localStorage.getItem('hmap-current-user');
-                if (savedUser && mounted) {
-                    setUser(JSON.parse(savedUser));
+                // Restore only a server-validated HttpOnly-cookie session.
+                const session = await fetch('/api/auth/me', { credentials: 'same-origin' });
+                if (session.ok && mounted) {
+                    const { user: savedUser } = await session.json();
+                    setUser(savedUser);
                     setView('mifeco-landing');
                 }
             } catch (error) {
@@ -243,9 +244,9 @@ export const App = () => {
         }
     }, [addToast]);
 
-    const handleLogout = useCallback(() => {
-        localStorage.removeItem('hmap-current-user');
-        localStorage.removeItem('hmap-token');
+    const handleLogout = useCallback(async () => {
+        const { csrfToken } = await fetch('/api/auth/csrf', { credentials: 'same-origin' }).then(r => r.json());
+        await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin', headers: { 'X-CSRF-Token': csrfToken } });
         setUser(null);
         setView('auth');
     }, []);

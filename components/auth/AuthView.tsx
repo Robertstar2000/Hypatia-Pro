@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { RecoveryFlow } from './RecoveryFlow';
 
 interface AuthViewProps {
   onAuthSuccess: (user: any) => void;
@@ -18,6 +19,9 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess }) => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showRecovery, setShowRecovery] = useState(false);
+  const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
+  const [pendingAuth, setPendingAuth] = useState<any>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,17 +34,23 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess }) => {
       : formData;
 
     try {
+      const csrf = await fetch('/api/auth/csrf', { credentials: 'same-origin' }).then(r => r.json());
       const response = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf.csrfToken },
         body: JSON.stringify(payload)
       });
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Authentication failed');
 
-      localStorage.setItem('hmap-current-user', JSON.stringify(data.user));
-      localStorage.setItem('hmap-token', data.token);
+      if (data.recoveryCodes?.length) {
+        setRecoveryCodes(data.recoveryCodes);
+        setPendingAuth(data);
+        return;
+      }
+
       if (data.user.geminiKey) {
         localStorage.setItem('hmap-gemini-api-key', data.user.geminiKey);
       }
@@ -88,6 +98,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess }) => {
     { id: '04', color: '#ec4899', title: 'Peer-Review Protocol', desc: 'Subjects your methodology and findings to a simulated multi-agent peer review process, identifying potential biases, logical fallacies, and areas for empirical strengthening.' },
     { id: '05', color: '#ef4444', title: 'Manuscript Architect', desc: 'Automates the transition from raw data and lab notes to publication-ready drafts, ensuring adherence to scientific standards and proper provenance tracking.' }
   ];
+
+  if (recoveryCodes.length && pendingAuth) return <main className="min-vh-100 bg-dark text-light d-flex align-items-center justify-content-center p-4"><section className="card bg-dark text-light border-warning p-4" style={{maxWidth:560}}><h1 className="h4">Save your recovery codes</h1><p>These one-time codes are the only no-email recovery method. They will not be shown again.</p><pre className="bg-black text-light p-3 user-select-all">{recoveryCodes.join('\n')}</pre><button className="btn btn-outline-light mb-2" onClick={()=>{const b=new Blob([recoveryCodes.join('\n')+'\n'],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='hypatia-recovery-codes.txt';a.click();URL.revokeObjectURL(a.href)}}>Download codes</button><button className="btn btn-primary" onClick={()=>onAuthSuccess(pendingAuth.user)}>I saved the codes</button></section></main>;
 
   return (
     <>
@@ -180,7 +192,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess }) => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            {showRecovery ? <RecoveryFlow onClose={() => setShowRecovery(false)} /> : <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
                 <div className="mb-4">
                   <label className="d-block text-[10px] fw-black text-[#f8fafc] tracking-[0.2em] mb-2 uppercase">Username</label>
@@ -208,6 +220,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess }) => {
                 <input
                   type="password"
                   required
+                  minLength={isLogin ? undefined : 12}
                   className="form-control bg-[#0b1020] border-[rgba(255,255,255,0.08)] rounded-2xl py-3 px-4 text-sm focus:border-[#06b6d4] focus:shadow-[0_0_15px_rgba(6,182,212,0.1)] transition-all"
                   value={formData.password}
                   onChange={e => setFormData({...formData, password: e.target.value})}
@@ -237,7 +250,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess }) => {
               >
                 {loading ? 'PROCESSING...' : (isLogin ? 'Sign in to use your own key' : 'INITIALIZE')}
               </button>
-            </form>
+              {isLogin && <button type="button" className="btn btn-link w-100 text-info" onClick={() => setShowRecovery(true)}>Forgot password?</button>}
+            </form>}
 
             <div className="mt-3 text-center">
               <a
