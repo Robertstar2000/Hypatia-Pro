@@ -85,9 +85,8 @@ async function startServer() {
   });
 
   app.post('/api/waitlist', async (req, res) => {
-    const { email, platform } = req.body || {};
-    if (typeof email !== 'string' || email.length > 320 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'A valid email is required' });
-    if (platform !== undefined && (typeof platform !== 'string' || platform.length > 100)) return res.status(400).json({ error: 'Invalid platform' });
+    const { email, platform } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
     try {
       const stmt = db.prepare('INSERT INTO waitlist (email, platform) VALUES (?, ?)');
       stmt.run(email, platform || 'unknown');
