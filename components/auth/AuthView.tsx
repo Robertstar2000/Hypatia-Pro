@@ -266,13 +266,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess }) => {
               </a>
             </div>
 
-            <div className="mt-4 text-center">
-              <button
-                onClick={() => setShowWaitlist(true)}
-                className="btn btn-link text-[#94a3b8] text-[10px] fw-bold tracking-widest text-decoration-none hover:text-[#f8fafc]"
-              >
-                JOIN WAITLIST FOR PRO VERSION
-              </button>
+            <div className="mt-4 text-center text-[#94a3b8] text-[10px] fw-bold tracking-widest uppercase">
+              Paid checkout is live. Application access is provisioned separately after verified payment.
             </div>
           </div>
 
