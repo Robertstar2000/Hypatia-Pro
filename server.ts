@@ -59,6 +59,16 @@ async function startServer() {
   };
   await installSecureAuth(app, authDb, 'password', true);
 
+  app.get('/health', (_req, res) => {
+    try {
+      db.prepare('SELECT 1 AS ok').get();
+      res.status(200).json({ status: 'ok', service: 'hypatia-pro' });
+    } catch (error) {
+      console.error('Health check failed:', error);
+      res.status(503).json({ status: 'error', service: 'hypatia-pro' });
+    }
+  });
+
   // API Routes
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString(), env: NODE_ENV });
