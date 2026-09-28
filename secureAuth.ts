@@ -77,7 +77,7 @@ async function issueSession(db: AuthDb, userId: string) {
   return token;
 }
 
-async function currentUser(db: AuthDb, req: Request) {
+export async function currentUser(db: AuthDb, req: Request) {
   const token = parseCookie(req, SESSION_COOKIE) || '';
   if (!token) return null;
   return db.get('SELECT u.* FROM auth_sessions s JOIN users u ON CAST(u.id AS TEXT)=s.user_id WHERE s.token_hash=? AND s.expires_at>?', [digest(token), now()]);
