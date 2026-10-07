@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { getKeyStatus } from '../../services';
 import { RecoveryCodeManager } from '../auth/RecoveryFlow';
@@ -9,15 +9,25 @@ interface SettingsModalProps {
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [onClose]);
+
     const keyStatus = getKeyStatus();
 
     const modalContent = (
-        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 3100 }} onClick={onClose}>
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 3100 }} onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
             <div className="modal-dialog modal-dialog-centered" onClick={e => e.stopPropagation()}>
                 <div className="modal-content bg-dark border-secondary">
                     <div className="modal-header border-secondary">
-                        <h5 className="modal-title text-primary-glow"><i className="bi bi-gear-fill me-2"></i>Application Settings</h5>
-                        <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
+                        <h5 id="settings-modal-title" className="modal-title text-primary-glow"><i className="bi bi-gear-fill me-2"></i>Application Settings</h5>
+                        <button type="button" className="btn-close btn-close-white" onClick={onClose} aria-label="Close settings"></button>
                     </div>
                     <div className="modal-body p-4">
                         <div className="mb-4">

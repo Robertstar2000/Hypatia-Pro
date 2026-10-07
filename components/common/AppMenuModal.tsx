@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useExperiment, getKeyStatus } from '../../services';
 import { useToast } from '../../toast';
@@ -86,18 +86,29 @@ export const AppMenuModal: React.FC<AppMenuModalProps> = ({ onClose, setView, ac
         }
     ];
 
+    // Handle Escape key to close menu
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [onClose]);
+
     // Get auth status for display
     const keyStatus = getKeyStatus();
 
     const menuOverlay = (
-        <div className="app-menu-overlay" onClick={onClose}>
+        <div className="app-menu-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label="System Menu">
             <div className="app-menu-modal" onClick={e => e.stopPropagation()}>
                 <div className="app-menu-header">
                     <h5 className="mb-0 fw-bold">
                         <i className="bi bi-grid-3x3-gap-fill me-2 text-primary-glow"></i>
                         SYSTEM MENU
                     </h5>
-                    <button className="btn-close btn-close-white" onClick={onClose}></button>
+                    <button className="btn-close btn-close-white" onClick={onClose} aria-label="Close system menu"></button>
                 </div>
                 
                 <div className="app-menu-body p-4">
