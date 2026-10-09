@@ -150,7 +150,7 @@ export const ManualDataEntry = ({ onComplete, context }) => {
                                 <button className="btn btn-xs btn-outline-success" onClick={handleDownloadTemplate} title="Download Excel Template" disabled={columns.length === 0}>
                                     <i className="bi bi-file-earmark-excel me-1"></i> Template
                                 </button>
-                                <button className="btn btn-xs btn-outline-secondary" onClick={() => { if(window.confirm("Reset table structure?")) { setColumns([]); setAgenticRun(p=>({...p, status:'idle'})); }}} title="Re-initialize Architect Agents">
+                                <button className="btn btn-xs btn-outline-secondary" onClick={() => { if(window.confirm("Reset table structure?")) { setColumns([]); setAgenticRun(p=>({...p, status:'idle'})); }}} title="Re-initialize Architect Agents" aria-label="Re-initialize Architect Agents">
                                     <i className="bi bi-gear-wide-connected"></i>
                                 </button>
                             </div>
@@ -164,7 +164,7 @@ export const ManualDataEntry = ({ onComplete, context }) => {
                                     {rows.map((row, rowIndex) => (
                                         <tr key={rowIndex}>
                                             {columns.map(col => <td key={col} className="p-1"><input type="text" className="form-control form-control-sm border-0 bg-transparent text-white" value={row[col] || ''} onChange={e => handleRowChange(rowIndex, col, e.target.value)} /></td>)}
-                                            <td className="p-1 text-center"><button className="btn btn-sm text-danger" onClick={() => removeRow(rowIndex)} disabled={rows.length <= 1}><i className="bi bi-x-lg"></i></button></td>
+                                            <td className="p-1 text-center"><button className="btn btn-sm text-danger" onClick={() => removeRow(rowIndex)} disabled={rows.length <= 1} title="Delete row" aria-label={`Delete row ${rowIndex + 1}`}><i className="bi bi-x-lg"></i></button></td>
                                         </tr>
                                     ))}
                                 </tbody>

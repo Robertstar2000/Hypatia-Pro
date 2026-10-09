@@ -36,7 +36,7 @@ export const LabNotebook = ({ isOpen, onClose }) => {
                         Insert Template
                     </button>
                     <button className="btn btn-primary btn-sm me-2" onClick={handleSave}>Save</button>
-                    <button className="btn btn-outline-secondary btn-sm" onClick={onClose}><i className="bi bi-x-lg"></i></button>
+                    <button className="btn btn-outline-secondary btn-sm" onClick={onClose} title="Close Lab Notebook" aria-label="Close Lab Notebook"><i className="bi bi-x-lg"></i></button>
                 </div>
             </div>
             <div className="lab-notebook-body p-0">
