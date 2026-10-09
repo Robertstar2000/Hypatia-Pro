@@ -55,7 +55,7 @@ export const ExperimentCard = memo<ExperimentCardProps>(({
                         <button className="btn btn-sm btn-outline-light" onClick={() => onUnarchive(exp)}>
                              <i className="bi bi-box-arrow-in-up me-1"></i> Restore
                         </button>
-                         <button className="btn btn-sm btn-outline-danger" onClick={() => deleteExperiment(exp.id)}>
+                        <button className="btn btn-sm btn-outline-danger" onClick={() => deleteExperiment(exp.id)} title="Delete Experiment" aria-label="Delete Experiment">
                             <i className="bi bi-trash"></i>
                         </button>
                     </div>
@@ -71,13 +71,13 @@ export const ExperimentCard = memo<ExperimentCardProps>(({
                             </button>
                         )}
                         <div className="d-flex gap-2">
-                            <button className="btn btn-sm btn-outline-secondary flex-grow-1" onClick={() => handleExport(exp)} title="Export JSON">
+                            <button className="btn btn-sm btn-outline-secondary flex-grow-1" onClick={() => handleExport(exp)} title="Export JSON" aria-label="Export JSON">
                                 <i className="bi bi-download"></i>
                             </button>
-                            <button className="btn btn-sm btn-outline-secondary flex-grow-1" onClick={() => onArchive(exp)} title="Archive">
+                            <button className="btn btn-sm btn-outline-secondary flex-grow-1" onClick={() => onArchive(exp)} title="Archive Experiment" aria-label="Archive Experiment">
                                 <i className="bi bi-archive"></i>
                             </button>
-                            <button className="btn btn-sm btn-outline-danger flex-grow-1" onClick={() => deleteExperiment(exp.id)} title="Delete">
+                            <button className="btn btn-sm btn-outline-danger flex-grow-1" onClick={() => deleteExperiment(exp.id)} title="Delete Experiment" aria-label="Delete Experiment">
                                 <i className="bi bi-trash"></i>
                             </button>
                         </div>
