@@ -7,8 +7,18 @@ interface ToastProviderProps {
     children: React.ReactNode;
 }
 
+interface ToastItem {
+    id: number;
+    message: string;
+    type: 'success' | 'danger' | 'warning' | 'info';
+}
+
 export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
-    const [toasts, setToasts] = useState([]);
+    const [toasts, setToasts] = useState<ToastItem[]>([]);
+
+    const removeToast = useCallback((id: number) => {
+        setToasts(prev => prev.filter(t => t.id !== id));
+    }, []);
 
     const addToast = useCallback((message: string, type: 'success' | 'danger' | 'warning' | 'info' = 'success') => {
         const id = Date.now();
@@ -23,8 +33,16 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
             {children}
             <div className="toast-container position-fixed bottom-0 end-0 p-3" style={{zIndex: 1100}}>
                 {toasts.map(toast => (
-                    <div key={toast.id} className={`toast show bg-${toast.type} text-white`} role="alert" aria-live="assertive" aria-atomic="true">
-                        <div className="toast-body">{toast.message}</div>
+                    <div key={toast.id} className={`toast show align-items-center bg-${toast.type} text-white border-0 mb-2 shadow-sm`} role="alert" aria-live="assertive" aria-atomic="true">
+                        <div className="d-flex">
+                            <div className="toast-body">{toast.message}</div>
+                            <button
+                                type="button"
+                                className="btn-close btn-close-white me-2 m-auto"
+                                aria-label="Close notification"
+                                onClick={() => removeToast(toast.id)}
+                            />
+                        </div>
                     </div>
                 ))}
             </div>
