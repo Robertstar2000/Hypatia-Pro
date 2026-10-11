@@ -32,6 +32,16 @@ export const HelpModal = ({ onClose }) => {
     }, []);
 
     useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [onClose]);
+
+    useEffect(() => {
         const fetchContent = async () => {
             setIsLoading(true);
             try {
@@ -59,7 +69,7 @@ export const HelpModal = ({ onClose }) => {
     }, [activeSection]);
 
     const modalContent = (
-        <div className="help-modal-overlay" onClick={onClose}>
+        <div className="help-modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label="Core Documentation">
             <div className="help-modal-container" onClick={e => e.stopPropagation()}>
                 <div className="help-sidebar">
                     <div className="help-sidebar-header">
@@ -75,6 +85,7 @@ export const HelpModal = ({ onClose }) => {
                                 key={s.id}
                                 className={`help-nav-item ${activeSection.id === s.id ? 'active' : ''}`}
                                 onClick={() => setActiveSection(s)}
+                                aria-label={`View ${s.title}`}
                             >
                                 <i className={`bi ${s.icon} me-2`}></i>
                                 <span>{s.title}</span>
@@ -82,7 +93,7 @@ export const HelpModal = ({ onClose }) => {
                         ))}
                     </div>
                     <div className="px-3 mt-auto help-close-wrapper">
-                        <button className="help-close-btn w-100" onClick={onClose}>
+                        <button className="help-close-btn w-100" onClick={onClose} aria-label="Close Documentation">
                             <i className="bi bi-x-lg me-2"></i> CLOSE
                         </button>
                     </div>
@@ -97,7 +108,7 @@ export const HelpModal = ({ onClose }) => {
                         <div className="badge bg-primary bg-opacity-10 text-primary-glow border border-primary border-opacity-25 px-3 py-2 d-none d-md-block">
                             <i className="bi bi-shield-check me-2"></i> VERIFIED ASSET
                         </div>
-                        <button className="btn btn-sm btn-outline-danger d-md-none ms-2" onClick={onClose}>
+                        <button className="btn btn-sm btn-outline-danger d-md-none ms-2" onClick={onClose} aria-label="Close Documentation">
                             <i className="bi bi-x-lg"></i>
                         </button>
                     </div>
