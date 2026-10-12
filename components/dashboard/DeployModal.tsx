@@ -175,7 +175,7 @@ export const DeployModal = ({ experiment, onClose, onUpdateExperiment, onExportE
                 <div className="modal-content">
                     <div className="modal-header">
                         {experiment.automationMode === 'manual' ? renderManualMode() : renderAutomatedMode()}
-                        <button type="button" className="btn-close" onClick={onClose}></button>
+                        <button type="button" className="btn-close" onClick={onClose} aria-label="Close modal"></button>
                     </div>
                     <div className="modal-body">
                         {renderContent()}
