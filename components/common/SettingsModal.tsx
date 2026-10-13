@@ -17,7 +17,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                 <div className="modal-content bg-dark border-secondary">
                     <div className="modal-header border-secondary">
                         <h5 className="modal-title text-primary-glow"><i className="bi bi-gear-fill me-2"></i>Application Settings</h5>
-                        <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
+                        <button type="button" className="btn-close btn-close-white" onClick={onClose} aria-label="Close settings"></button>
                     </div>
                     <div className="modal-body p-4">
                         <div className="mb-4">
