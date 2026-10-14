@@ -7,6 +7,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { currentUser, installSecureAuth, type AuthDb } from './secureAuth';
+// @ts-ignore
 import { installEntitlementMiddleware } from '../entitlementMiddleware.mts';
 
 const __filename = fileURLToPath(import.meta.url);
