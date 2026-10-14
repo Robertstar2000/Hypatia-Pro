@@ -43,7 +43,7 @@ export const FineTuneModal = ({ stepId, onClose }) => {
                 <div className="modal-content">
                     <div className="modal-header">
                         <h5 className="modal-title"><i className="bi bi-sliders me-2"></i>Fine-Tune AI for Step {stepId}</h5>
-                        <button type="button" className="btn-close" onClick={onClose}></button>
+                        <button type="button" className="btn-close" onClick={onClose} aria-label="Close fine-tune modal"></button>
                     </div>
                     <div className="modal-body">
                         {parameters.length > 0 ? parameters.map(param => (

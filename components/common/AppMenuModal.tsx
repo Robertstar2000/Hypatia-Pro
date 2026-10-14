@@ -97,7 +97,7 @@ export const AppMenuModal: React.FC<AppMenuModalProps> = ({ onClose, setView, ac
                         <i className="bi bi-grid-3x3-gap-fill me-2 text-primary-glow"></i>
                         SYSTEM MENU
                     </h5>
-                    <button className="btn-close btn-close-white" onClick={onClose}></button>
+                    <button className="btn-close btn-close-white" onClick={onClose} aria-label="Close menu"></button>
                 </div>
 
                 <div className="app-menu-body p-4">

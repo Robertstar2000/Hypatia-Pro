@@ -344,7 +344,7 @@ export const ProjectDocumentation = () => {
                         <div className="modal-content bg-dark text-white">
                             <div className="modal-header">
                                 <h5 className="modal-title">{selectedArtifact.title}</h5>
-                                <button className="btn-close btn-close-white" onClick={() => setSelectedArtifact(null)}></button>
+                                <button className="btn-close btn-close-white" onClick={() => setSelectedArtifact(null)} aria-label="Close artifact preview"></button>
                             </div>
                             <div className="modal-body">
                                 {selectedArtifact.type === 'document' ? (

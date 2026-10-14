@@ -296,7 +296,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess }) => {
                 <h2 className="h4 fw-black font-['Space_Grotesk'] tracking-tight mb-1">HYPATIA PRO <span className="text-[#6366f1] text-xs">WAITLIST</span></h2>
                 <p className="text-xs text-[#94a3b8] tracking-widest uppercase">The future of vibe coding like research assistance ...</p>
               </div>
-              <button onClick={() => { setShowWaitlist(false); setWaitlistStatus('idle'); }} className="btn-close btn-close-white"></button>
+              <button onClick={() => { setShowWaitlist(false); setWaitlistStatus('idle'); }} className="btn-close btn-close-white" aria-label="Close waitlist modal"></button>
             </div>
 
             <div className="mb-5">

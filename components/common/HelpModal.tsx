@@ -97,7 +97,7 @@ export const HelpModal = ({ onClose }) => {
                         <div className="badge bg-primary bg-opacity-10 text-primary-glow border border-primary border-opacity-25 px-3 py-2 d-none d-md-block">
                             <i className="bi bi-shield-check me-2"></i> VERIFIED ASSET
                         </div>
-                        <button className="btn btn-sm btn-outline-danger d-md-none ms-2" onClick={onClose}>
+                        <button className="btn btn-sm btn-outline-danger d-md-none ms-2" onClick={onClose} aria-label="Close documentation" title="Close documentation">
                             <i className="bi bi-x-lg"></i>
                         </button>
                     </div>
