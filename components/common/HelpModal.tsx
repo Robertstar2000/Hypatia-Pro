@@ -32,6 +32,16 @@ export const HelpModal = ({ onClose }) => {
     }, []);
 
     useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [onClose]);
+
+    useEffect(() => {
         const fetchContent = async () => {
             setIsLoading(true);
             try {
@@ -59,7 +69,7 @@ export const HelpModal = ({ onClose }) => {
     }, [activeSection]);
 
     const modalContent = (
-        <div className="help-modal-overlay" onClick={onClose}>
+        <div className="help-modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="helpModalTitle">
             <div className="help-modal-container" onClick={e => e.stopPropagation()}>
                 <div className="help-sidebar">
                     <div className="help-sidebar-header">
@@ -91,15 +101,17 @@ export const HelpModal = ({ onClose }) => {
                 <div className="help-main">
                     <div className="help-main-header">
                         <div>
-                            <h4 className="mb-0 fw-bold">{activeSection.title}</h4>
+                            <h4 id="helpModalTitle" className="mb-0 fw-bold">{activeSection.title}</h4>
                             <div className="text-white-50 small">Protocol: {activeSection.file.toUpperCase()}</div>
                         </div>
-                        <div className="badge bg-primary bg-opacity-10 text-primary-glow border border-primary border-opacity-25 px-3 py-2 d-none d-md-block">
-                            <i className="bi bi-shield-check me-2"></i> VERIFIED ASSET
+                        <div className="d-flex align-items-center gap-2">
+                            <div className="badge bg-primary bg-opacity-10 text-primary-glow border border-primary border-opacity-25 px-3 py-2 d-none d-md-block">
+                                <i className="bi bi-shield-check me-2"></i> VERIFIED ASSET
+                            </div>
+                            <button className="btn btn-sm btn-outline-secondary ms-2" onClick={onClose} aria-label="Close documentation" title="Close documentation">
+                                <i className="bi bi-x-lg"></i>
+                            </button>
                         </div>
-                        <button className="btn btn-sm btn-outline-danger d-md-none ms-2" onClick={onClose} aria-label="Close documentation" title="Close documentation">
-                            <i className="bi bi-x-lg"></i>
-                        </button>
                     </div>
                     <div className="help-content-scroll">
                         {isLoading ? (
