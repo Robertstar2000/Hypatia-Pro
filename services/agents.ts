@@ -349,19 +349,21 @@ export const runLiteratureReviewAgent = async ({ experiment, updateLog }: { expe
 
 export const runPeerReviewAgent = async ({ experiment, updateLog }: { experiment: Experiment, updateLog: (agent: string, msg: string) => void }) => {
     const steps = [3, 4, 5, 7, 8];
-    let critiqueLog = "";
 
-    for (const step of steps) {
+    const critiquePromises = steps.map(async (step) => {
         updateLog('Reviewer', `Analyzing Step ${step} logic...`);
         const stepContent = experiment.stepData[step]?.output || "";
         const critiquePrompt = `Critique Step ${step} CONTENT: ${stepContent.substring(0, 5000)}`;
         const res = await callGeminiWithRetry('gemini-3-flash-preview', { contents: critiquePrompt });
         try {
-            critiqueLog += `\n\nSTEP ${step} CRITIQUE:\n${safeGetText(res)}`;
+            return `\n\nSTEP ${step} CRITIQUE:\n${safeGetText(res)}`;
         } catch (e) {
-            critiqueLog += `\n\nSTEP ${step} CRITIQUE:\n[Failed to extract response]`;
+            return `\n\nSTEP ${step} CRITIQUE:\n[Failed to extract response]`;
         }
-    }
+    });
+
+    const critiques = await Promise.all(critiquePromises);
+    const critiqueLog = critiques.join("");
 
     updateLog('Editor', 'Compiling report...');
     const finalReportPrompt = `Summarize: ${critiqueLog}`;
