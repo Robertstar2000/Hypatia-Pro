@@ -105,7 +105,16 @@ async function issueCodes(db: AuthDb, userId: string) {
   await db.exec('BEGIN IMMEDIATE');
   try {
     await db.run('DELETE FROM recovery_codes WHERE user_id = ?', [userId]);
-    for (const code of codes) await db.run('INSERT INTO recovery_codes(user_id, code_hash, created_at) VALUES (?, ?, ?)', [userId, recoveryDigest(userId, code), now()]);
+    if (codes.length > 0) {
+      const placeholders = codes.map(() => '(?, ?, ?)').join(', ');
+      const sql = `INSERT INTO recovery_codes(user_id, code_hash, created_at) VALUES ${placeholders}`;
+      const params: unknown[] = [];
+      const timestamp = now();
+      for (const code of codes) {
+        params.push(userId, recoveryDigest(userId, code), timestamp);
+      }
+      await db.run(sql, params);
+    }
     await db.exec('COMMIT');
   } catch (e) { await safeRollback(db); throw e; }
   return codes;
