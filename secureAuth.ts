@@ -14,8 +14,21 @@ const RESET_TTL_MS = 10 * 60_000;
 const SESSION_TTL_MS = 24 * 60 * 60_000;
 const RATE_WINDOW_MS = 15 * 60_000;
 const RATE_LIMIT = 5;
-const DUMMY_PASSWORD_HASH = '$2b$12$R9h/cIPz0gi.URNNX3kh2OPST9/PgBkqquzi.Ss7KIUgO2t0jWMUW';
 const GENERIC = 'If the account and recovery code are valid, password reset can continue.';
+
+let cachedDummyHash = process.env.DUMMY_PASSWORD_HASH || '';
+
+export async function getDummyPasswordHash(): Promise<string> {
+  const envHash = process.env.DUMMY_PASSWORD_HASH;
+  if (envHash) {
+    return envHash;
+  }
+  if (!cachedDummyHash) {
+    const randomSecret = crypto.randomBytes(32).toString('hex');
+    cachedDummyHash = await bcrypt.hash(randomSecret, 12);
+  }
+  return cachedDummyHash;
+}
 const SESSION_COOKIE = 'mifeco_session';
 
 const now = () => Date.now();
@@ -89,6 +102,7 @@ async function audit(db: AuthDb, req: Request, event: string, success: boolean, 
 
 export async function installSecureAuth(app: Express, db: AuthDb, passwordColumn: 'password' | 'passwordHash', autoIntegerId = false) {
   await migrateAuth(db);
+  await getDummyPasswordHash();
   app.get('/api/auth/csrf', (req, res) => { const token = randomToken(); res.setHeader('Cache-Control', 'no-store'); res.append('Set-Cookie', `mifeco_csrf=${token}; ${cookieFlags(req)}`); res.json({ csrfToken: token }); });
   app.use('/api/auth', (req, res, next) => {
     res.setHeader('Cache-Control', 'no-store');
@@ -112,7 +126,7 @@ export async function installSecureAuth(app: Express, db: AuthDb, passwordColumn
     const identifier = String(req.body?.emailOrUsername ?? req.body?.email ?? ''); const password = req.body?.password;
     const user = identifier ? await db.get('SELECT * FROM users WHERE lower(email)=lower(?) OR lower(username)=lower(?)', [identifier, identifier]) : null;
     const ok = !!user && !user.password_setup_required && typeof user[passwordColumn] === 'string' && user[passwordColumn].length > 0 && typeof password === 'string' && password.length > 0 && await bcrypt.compare(password, user[passwordColumn]);
-    if (!ok) { await bcrypt.compare(typeof password === 'string' ? password : '', DUMMY_PASSWORD_HASH).catch(() => false); await audit(db, req, 'login', false, user?.id); return res.status(401).json({ error: 'Invalid credentials' }); }
+    if (!ok) { const dummyHash = await getDummyPasswordHash(); await bcrypt.compare(typeof password === 'string' ? password : '', dummyHash).catch(() => false); await audit(db, req, 'login', false, user?.id); return res.status(401).json({ error: 'Invalid credentials' }); }
     const token = await issueSession(db, String(user.id)); setSessionCookie(req, res, token); await audit(db, req, 'login', true, String(user.id)); res.json({ success: true, user: publicUser(user) });
   });
   app.post('/api/auth/recovery/start', async (req, res) => {
