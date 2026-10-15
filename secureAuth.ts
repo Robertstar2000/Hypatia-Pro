@@ -28,7 +28,47 @@ const safeEqualHex = (a: string, b: string) => {
 const clientIp = (req: Request) => req.ip || req.socket.remoteAddress || 'unknown';
 const identifierKey = (identifier: string) => digest(identifier.trim().toLowerCase());
 const validPassword = (password: unknown) => typeof password === 'string' && password.length >= 12 && password.length <= 256;
-const parseCookie = (req: Request, name: string) => (req.headers.cookie || '').split(';').map(v => v.trim()).find(v => v.startsWith(`${name}=`))?.slice(name.length + 1);
+const parseCookie = (req: Request, name: string) => {
+  const header = req.headers.cookie;
+  if (!header) return undefined;
+
+  const prefix = `${name}=`;
+  const prefixLen = prefix.length;
+  let start = 0;
+  const len = header.length;
+
+  while (start < len) {
+    while (start < len) {
+      const code = header.charCodeAt(start);
+      if (code === 32 || code === 59 || code === 9) {
+        start++;
+      } else {
+        break;
+      }
+    }
+    if (start >= len) break;
+
+    if (header.startsWith(prefix, start)) {
+      let end = header.indexOf(';', start + prefixLen);
+      if (end === -1) end = len;
+      while (end > start + prefixLen) {
+        const code = header.charCodeAt(end - 1);
+        if (code === 32 || code === 9) {
+          end--;
+        } else {
+          break;
+        }
+      }
+      return header.slice(start + prefixLen, end);
+    }
+
+    const nextSemi = header.indexOf(';', start);
+    if (nextSemi === -1) break;
+    start = nextSemi + 1;
+  }
+
+  return undefined;
+};
 const cookieFlags = (req: Request, httpOnly = false) => `Path=/; SameSite=Strict; Max-Age=${Math.floor(SESSION_TTL_MS / 1000)}${httpOnly ? '; HttpOnly' : ''}${req.secure || req.headers['x-forwarded-proto'] === 'https' ? '; Secure' : ''}`;
 const setSessionCookie = (req: Request, res: Response, token: string) => res.append('Set-Cookie', `${SESSION_COOKIE}=${token}; ${cookieFlags(req, true)}`);
 const clearSessionCookie = (req: Request, res: Response) => res.append('Set-Cookie', `${SESSION_COOKIE}=; Path=/; SameSite=Strict; Max-Age=0; HttpOnly${req.secure || req.headers['x-forwarded-proto'] === 'https' ? '; Secure' : ''}`);
