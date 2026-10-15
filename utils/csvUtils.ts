@@ -8,9 +8,15 @@ const parseCsvLine = (text: string): string[] => {
     const result: string[] = [];
     let current = '';
     let inQuote = false;
-    for (let i = 0; i < text.length; i++) {
+    let sliceStart = 0;
+    const len = text.length;
+
+    for (let i = 0; i < len; i++) {
         const char = text[i];
         if (char === '"') {
+            if (i > sliceStart) {
+                current += text.substring(sliceStart, i);
+            }
             if (inQuote && text[i+1] === '"') {
                 // Escaped quote
                 current += '"';
@@ -18,15 +24,23 @@ const parseCsvLine = (text: string): string[] => {
             } else {
                 inQuote = !inQuote;
             }
+            sliceStart = i + 1;
         } else if (char === ',' && !inQuote) {
-            result.push(current);
+            if (i > sliceStart) {
+                current += text.substring(sliceStart, i);
+            }
+            result.push(current.trim());
             current = '';
-        } else {
-            current += char;
+            sliceStart = i + 1;
         }
     }
-    result.push(current);
-    return result.map(cell => cell.trim());
+
+    if (len > sliceStart) {
+        current += text.substring(sliceStart, len);
+    }
+    result.push(current.trim());
+
+    return result;
 };
 
 
