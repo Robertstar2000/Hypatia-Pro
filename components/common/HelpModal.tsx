@@ -85,6 +85,7 @@ export const HelpModal = ({ onClose }) => {
                                 key={s.id}
                                 className={`help-nav-item ${activeSection.id === s.id ? 'active' : ''}`}
                                 onClick={() => setActiveSection(s)}
+                                aria-current={activeSection.id === s.id ? 'page' : undefined}
                             >
                                 <i className={`bi ${s.icon} me-2`}></i>
                                 <span>{s.title}</span>
