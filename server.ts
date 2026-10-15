@@ -15,7 +15,6 @@ const __dirname = path.dirname(__filename);
 
 let db: Database.Database;
 try {
-  console.log('Initializing database...');
   const dbPath = process.env.AUTH_DB_PATH || path.join(__dirname, 'mifeco.db');
   db = new Database(dbPath);
   // Initialize Database
