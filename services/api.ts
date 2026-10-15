@@ -175,7 +175,6 @@ export const callGeminiWithRetry = async (
                  if (onStatusUpdate) onStatusUpdate(`Connection interrupted. Retrying (${attempts}/${maxRetries})...`);
             }
 
-            console.log(`[API Retry] Attempt ${attempts} waiting ${waitTime}ms. Error: ${msg}`);
             await wait(waitTime);
         }
     }
