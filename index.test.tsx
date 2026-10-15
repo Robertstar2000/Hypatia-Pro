@@ -1,4 +1,5 @@
 
+import { GoogleGenAI } from '@google/genai';
 import {
     RESEARCH_QUESTION_SCHEMA,
     DATA_ANALYSIS_IMAGE_OUTPUT_SCHEMA
@@ -43,6 +44,67 @@ export const appTests = [
             if (!key) throw new Error("No API Key found in environment.");
             const isWorking = await testApiKey(key);
             if (!isWorking) throw new Error("Current API Key is not accepting requests. Please check settings.");
+        }
+    },
+    {
+        name: "[Unit] API Service: testApiKey returns false when key is empty or missing",
+        fn: async () => {
+            const resEmpty = await testApiKey("");
+            expect(resEmpty).toBe(false);
+            const resNull = await testApiKey(null as any);
+            expect(resNull).toBe(false);
+            const resUndefined = await testApiKey(undefined as any);
+            expect(resUndefined).toBe(false);
+        }
+    },
+    {
+        name: "[Unit] API Service: testApiKey returns true on successful API ping and passes correct options",
+        fn: async () => {
+            const sampleInstance = new GoogleGenAI({ apiKey: 'init' });
+            const ModelsClass = Object.getPrototypeOf(sampleInstance.models).constructor;
+            const originalGenerateContentInternal = ModelsClass.prototype.generateContentInternal;
+
+            let capturedApiKey: string | undefined;
+            let capturedParams: any;
+
+            ModelsClass.prototype.generateContentInternal = async function(params: any) {
+                capturedApiKey = this.apiClient?.clientOptions?.apiKey;
+                capturedParams = params;
+                return { text: 'Ping response' };
+            };
+
+            try {
+                const testKey = 'test-valid-api-key-12345';
+                const result = await testApiKey(testKey);
+
+                expect(result).toBe(true);
+                expect(capturedApiKey).toBe(testKey);
+                expect(capturedParams).toEqual({
+                    model: 'gemini-3-flash-preview',
+                    contents: 'Ping.'
+                });
+            } finally {
+                ModelsClass.prototype.generateContentInternal = originalGenerateContentInternal;
+            }
+        }
+    },
+    {
+        name: "[Unit] API Service: testApiKey returns false on API call rejection or failure",
+        fn: async () => {
+            const sampleInstance = new GoogleGenAI({ apiKey: 'init' });
+            const ModelsClass = Object.getPrototypeOf(sampleInstance.models).constructor;
+            const originalGenerateContentInternal = ModelsClass.prototype.generateContentInternal;
+
+            ModelsClass.prototype.generateContentInternal = async function() {
+                throw new Error('API key not valid. Please pass a valid API key.');
+            };
+
+            try {
+                const result = await testApiKey('invalid-api-key-999');
+                expect(result).toBe(false);
+            } finally {
+                ModelsClass.prototype.generateContentInternal = originalGenerateContentInternal;
+            }
         }
     },
     {
