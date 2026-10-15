@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useExperiment, getKeyStatus } from '../../services';
+import { useExperiment } from '../../services';
 import { useToast } from '../../toast';
 import { HelpModal } from './HelpModal';
 import { SettingsModal } from './SettingsModal';
@@ -86,10 +86,67 @@ export const AppMenuModal: React.FC<AppMenuModalProps> = ({ onClose, setView, ac
         }
     ];
 
-    // Get auth status for display
-    const keyStatus = getKeyStatus();
+    return (
+        <>
+            {createPortal(
+                <AppMenuOverlay
+                    onClose={onClose}
+                    activeExperimentTitle={activeExperiment && activeView === 'experiment' ? activeExperiment.title : null}
+                    onSaveProject={handleSaveProject}
+                    menuItems={menuItems.filter(item => item.visible)}
+                    isAuthenticated={isAuthenticated}
+                />,
+                document.body
+            )}
+            {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
+            {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
+        </>
+    );
+};
 
-    const menuOverlay = (
+interface MenuItem {
+    id: string;
+    label: string;
+    icon: string;
+    description: string;
+    action: () => void;
+}
+
+interface ActiveProjectSectionProps {
+    title: string;
+    onSaveProject: () => void;
+}
+
+const ActiveProjectSection: React.FC<ActiveProjectSectionProps> = ({ title, onSaveProject }) => (
+    <div className="active-project-section mb-4 p-3 rounded-3 bg-primary bg-opacity-10 border border-primary border-opacity-25">
+        <div className="d-flex justify-content-between align-items-start">
+            <div>
+                <small className="text-primary-glow text-uppercase fw-bold ls-1 d-block mb-1">Active Research</small>
+                <h6 className="mb-0 text-white fw-bold">{title}</h6>
+            </div>
+            <button className="btn btn-sm btn-primary" onClick={onSaveProject}>
+                <i className="bi bi-archive-fill me-1"></i> SAVE TO ARCHIVE
+            </button>
+        </div>
+    </div>
+);
+
+interface AppMenuOverlayProps {
+    onClose: () => void;
+    activeExperimentTitle: string | null;
+    onSaveProject: () => void;
+    menuItems: MenuItem[];
+    isAuthenticated: boolean;
+}
+
+const AppMenuOverlay: React.FC<AppMenuOverlayProps> = ({
+    onClose,
+    activeExperimentTitle,
+    onSaveProject,
+    menuItems,
+    isAuthenticated
+}) => {
+    return (
         <div className="app-menu-overlay" onClick={onClose}>
             <div className="app-menu-modal" onClick={e => e.stopPropagation()}>
                 <div className="app-menu-header">
@@ -101,22 +158,12 @@ export const AppMenuModal: React.FC<AppMenuModalProps> = ({ onClose, setView, ac
                 </div>
 
                 <div className="app-menu-body p-4">
-                    {activeExperiment && activeView === 'experiment' && (
-                        <div className="active-project-section mb-4 p-3 rounded-3 bg-primary bg-opacity-10 border border-primary border-opacity-25">
-                            <div className="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <small className="text-primary-glow text-uppercase fw-bold ls-1 d-block mb-1">Active Research</small>
-                                    <h6 className="mb-0 text-white fw-bold">{activeExperiment.title}</h6>
-                                </div>
-                                <button className="btn btn-sm btn-primary" onClick={handleSaveProject}>
-                                    <i className="bi bi-archive-fill me-1"></i> SAVE TO ARCHIVE
-                                </button>
-                            </div>
-                        </div>
+                    {activeExperimentTitle && (
+                        <ActiveProjectSection title={activeExperimentTitle} onSaveProject={onSaveProject} />
                     )}
 
                     <div className="menu-grid">
-                        {menuItems.filter(item => item.visible).map(item => (
+                        {menuItems.map(item => (
                             <button
                                 key={item.id}
                                 className="menu-item-btn"
@@ -237,13 +284,5 @@ export const AppMenuModal: React.FC<AppMenuModalProps> = ({ onClose, setView, ac
                 .ls-1 { letter-spacing: 0.05rem; }
             `}</style>
         </div>
-    );
-
-    return (
-        <>
-            {createPortal(menuOverlay, document.body)}
-            {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
-            {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
-        </>
     );
 };
