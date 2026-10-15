@@ -50,6 +50,8 @@ export async function migrateAuth(db: AuthDb) {
     CREATE INDEX IF NOT EXISTS idx_auth_session_user ON auth_sessions(user_id);
     CREATE TABLE IF NOT EXISTS recovery_attempts (id INTEGER PRIMARY KEY AUTOINCREMENT, identifier_hash TEXT NOT NULL, ip_hash TEXT NOT NULL, attempted_at INTEGER NOT NULL);
     CREATE INDEX IF NOT EXISTS idx_recovery_attempts ON recovery_attempts(identifier_hash, ip_hash, attempted_at);
+    CREATE TABLE IF NOT EXISTS login_attempts (id INTEGER PRIMARY KEY AUTOINCREMENT, identifier_hash TEXT NOT NULL, ip_hash TEXT NOT NULL, attempted_at INTEGER NOT NULL);
+    CREATE INDEX IF NOT EXISTS idx_login_attempts ON login_attempts(identifier_hash, ip_hash, attempted_at);
     CREATE TABLE IF NOT EXISTS auth_audit (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT, event TEXT NOT NULL, success INTEGER NOT NULL, ip_hash TEXT NOT NULL, created_at INTEGER NOT NULL);
     CREATE TABLE IF NOT EXISTS schema_migrations (name TEXT PRIMARY KEY, applied_at INTEGER NOT NULL);
     INSERT OR IGNORE INTO schema_migrations(name, applied_at) VALUES ('20260918_secure_password_recovery_v2', CAST(strftime('%s','now') AS INTEGER) * 1000);
@@ -109,11 +111,17 @@ export async function installSecureAuth(app: Express, db: AuthDb, passwordColumn
     } catch (e) { console.error('signup error', e); res.status(409).json({ error: 'Account could not be created' }); }
   });
   app.post('/api/auth/login', async (req, res) => {
-    const identifier = String(req.body?.emailOrUsername ?? req.body?.email ?? ''); const password = req.body?.password;
-    const user = identifier ? await db.get('SELECT * FROM users WHERE lower(email)=lower(?) OR lower(username)=lower(?)', [identifier, identifier]) : null;
-    const ok = !!user && !user.password_setup_required && typeof user[passwordColumn] === 'string' && user[passwordColumn].length > 0 && typeof password === 'string' && password.length > 0 && await bcrypt.compare(password, user[passwordColumn]);
-    if (!ok) { await bcrypt.compare(typeof password === 'string' ? password : '', DUMMY_PASSWORD_HASH).catch(() => false); await audit(db, req, 'login', false, user?.id); return res.status(401).json({ error: 'Invalid credentials' }); }
-    const token = await issueSession(db, String(user.id)); setSessionCookie(req, res, token); await audit(db, req, 'login', true, String(user.id)); res.json({ success: true, user: publicUser(user) });
+    try {
+      const identifier = String(req.body?.emailOrUsername ?? req.body?.email ?? ''); const password = req.body?.password;
+      const ik = identifierKey(identifier); const ipk = digest(clientIp(req)); const cutoff = now() - RATE_WINDOW_MS;
+      const count = Number((await db.get('SELECT count(*) n FROM login_attempts WHERE (identifier_hash=? OR ip_hash=?) AND attempted_at>?', [ik, ipk, cutoff]))?.n || 0);
+      if (count >= RATE_LIMIT) { await audit(db, req, 'login', false); return res.status(429).json({ error: 'Too many attempts. Try again later.' }); }
+      await db.run('INSERT INTO login_attempts(identifier_hash,ip_hash,attempted_at) VALUES (?,?,?)', [ik, ipk, now()]);
+      const user = identifier ? await db.get('SELECT * FROM users WHERE lower(email)=lower(?) OR lower(username)=lower(?)', [identifier, identifier]) : null;
+      const ok = !!user && !user.password_setup_required && typeof user[passwordColumn] === 'string' && user[passwordColumn].length > 0 && typeof password === 'string' && password.length > 0 && await bcrypt.compare(password, user[passwordColumn]);
+      if (!ok) { await bcrypt.compare(typeof password === 'string' ? password : '', DUMMY_PASSWORD_HASH).catch(() => false); await audit(db, req, 'login', false, user?.id); return res.status(401).json({ error: 'Invalid credentials' }); }
+      const token = await issueSession(db, String(user.id)); setSessionCookie(req, res, token); await audit(db, req, 'login', true, String(user.id)); res.json({ success: true, user: publicUser(user) });
+    } catch { try { await safeRollback(db); } catch { /* ignore rollback errors */ } return res.status(500).json({ error: 'Login failed' }); }
   });
   app.post('/api/auth/recovery/start', async (req, res) => {
    try {
