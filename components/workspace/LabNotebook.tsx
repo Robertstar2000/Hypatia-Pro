@@ -14,6 +14,18 @@ export const LabNotebook = ({ isOpen, onClose }) => {
         setContent(activeExperiment?.labNotebook || '');
     }, [activeExperiment?.labNotebook, isOpen]);
 
+    // Handle Escape key to close drawer when open
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen, onClose]);
+
     const handleInsertTemplate = () => {
         setContent(prev => prev + experimentTemplate);
         addToast("Observation template inserted.", "info");
@@ -28,15 +40,20 @@ export const LabNotebook = ({ isOpen, onClose }) => {
     };
     
     return (
-         <div className={`lab-notebook-drawer ${isOpen ? 'open' : ''}`}>
+         <div
+            className={`lab-notebook-drawer ${isOpen ? 'open' : ''}`}
+            role={isOpen ? "dialog" : undefined}
+            aria-modal={isOpen ? "true" : undefined}
+            aria-label={isOpen ? "Lab Notebook" : undefined}
+         >
             <div className="lab-notebook-header d-flex justify-content-between align-items-center p-3 border-bottom border-secondary">
                 <h5 className="mb-0 fw-bold"><i className="bi bi-journal-bookmark me-2 text-primary-glow"></i>Lab Notebook</h5>
                 <div>
-                    <button className="btn btn-outline-primary btn-sm me-2" onClick={handleInsertTemplate} title="Insert Observation Template">
+                    <button className="btn btn-outline-primary btn-sm me-2" onClick={handleInsertTemplate} title="Insert Observation Template" aria-label="Insert observation template">
                         Insert Template
                     </button>
                     <button className="btn btn-primary btn-sm me-2" onClick={handleSave}>Save</button>
-                    <button className="btn btn-outline-secondary btn-sm" onClick={onClose}><i className="bi bi-x-lg"></i></button>
+                    <button className="btn btn-outline-secondary btn-sm" onClick={onClose} title="Close lab notebook" aria-label="Close lab notebook"><i className="bi bi-x-lg"></i></button>
                 </div>
             </div>
             <div className="lab-notebook-body p-0">
@@ -46,6 +63,7 @@ export const LabNotebook = ({ isOpen, onClose }) => {
                     onChange={(e) => setContent(e.target.value)}
                     placeholder="Record your thoughts, observations, and ideas during the discovery process..."
                     style={{ minHeight: 'calc(100vh - 60px)', backgroundColor: 'transparent', resize: 'none' }}
+                    aria-label="Lab notebook notes"
                 />
             </div>
         </div>
