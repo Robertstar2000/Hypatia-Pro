@@ -205,10 +205,11 @@ export const GeneratedOutput: React.FC<GeneratedOutputProps> = ({
                                         type="text"
                                         className="form-control bg-dark border-secondary text-white"
                                         placeholder="Pivot (e.g. 'Make it more abstract')"
+                                        aria-label="Pivot guidance instructions"
                                         value={guidanceInput}
                                         onChange={(e) => setGuidanceInput(e.target.value)}
                                     />
-                                    <button className="btn btn-outline-warning" onClick={handleRegenerate} title="Regenerate with guidance">
+                                    <button className="btn btn-outline-warning" onClick={handleRegenerate} title="Regenerate with guidance" aria-label="Regenerate with guidance">
                                         Go
                                     </button>
                                 </div>
@@ -227,11 +228,12 @@ export const GeneratedOutput: React.FC<GeneratedOutputProps> = ({
                                                 type="text"
                                                 className="form-control form-control-sm bg-dark text-white border-secondary"
                                                 placeholder="Instructions (e.g., 'Be more concise')"
+                                                aria-label="Regeneration instructions"
                                                 value={regenFeedback}
                                                 onChange={(e) => setRegenFeedback(e.target.value)}
                                                 autoFocus
                                             />
-                                            <button className="btn btn-sm btn-warning" onClick={handleRegenerate}>Go</button>
+                                            <button className="btn btn-sm btn-warning" onClick={handleRegenerate} title="Submit regeneration instructions" aria-label="Submit regeneration instructions">Go</button>
                                         </div>
                                     )}
                                 </>
