@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RecoveryFlow } from './RecoveryFlow';
 
 interface AuthViewProps {
@@ -22,6 +22,18 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess }) => {
   const [showRecovery, setShowRecovery] = useState(false);
   const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
   const [pendingAuth, setPendingAuth] = useState<any>(null);
+
+  useEffect(() => {
+    if (!showWaitlist) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowWaitlist(false);
+        setWaitlistStatus('idle');
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showWaitlist]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -295,13 +307,23 @@ export const AuthView: React.FC<AuthViewProps> = ({ onAuthSuccess }) => {
             zIndex: 999999
           }}
         >
-          <div className="card w-100 border-0 rounded-3xl p-5 shadow-2xl animate-in" style={{ maxWidth: '520px', background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)' }}>
+          <div
+            className="card w-100 border-0 rounded-3xl p-5 shadow-2xl animate-in"
+            style={{ maxWidth: '520px', background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)' }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="waitlist-modal-title"
+          >
             <div className="d-flex justify-content-between align-items-start mb-4">
               <div>
-                <h2 className="h4 fw-black font-['Space_Grotesk'] tracking-tight mb-1">HYPATIA PRO <span className="text-[#6366f1] text-xs">WAITLIST</span></h2>
+                <h2 id="waitlist-modal-title" className="h4 fw-black font-['Space_Grotesk'] tracking-tight mb-1">HYPATIA PRO <span className="text-[#6366f1] text-xs">WAITLIST</span></h2>
                 <p className="text-xs text-[#94a3b8] tracking-widest uppercase">The future of vibe coding like research assistance ...</p>
               </div>
-              <button onClick={() => { setShowWaitlist(false); setWaitlistStatus('idle'); }} className="btn-close btn-close-white"></button>
+              <button
+                onClick={() => { setShowWaitlist(false); setWaitlistStatus('idle'); }}
+                className="btn-close btn-close-white"
+                aria-label="Close waitlist modal"
+              ></button>
             </div>
 
             <div className="mb-5">
