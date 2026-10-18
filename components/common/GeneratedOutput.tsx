@@ -161,11 +161,12 @@ export const GeneratedOutput: React.FC<GeneratedOutputProps> = ({
 
                     {stepId === 3 && (
                         <div className="mb-4 text-start mx-auto p-3 rounded bg-black bg-opacity-20 border border-secondary border-opacity-25" style={{maxWidth: '450px'}}>
-                            <label className="form-label small fw-bold text-warning mb-1">
+                            <label className="form-label small fw-bold text-warning mb-1" htmlFor="directional-guidance-input">
                                 <i className="bi bi-compass me-1"></i> Directional Guidance (Optional)
                             </label>
                             <div className="input-group">
                                 <input
+                                    id="directional-guidance-input"
                                     type="text"
                                     className="form-control bg-dark border-secondary text-white small"
                                     placeholder="E.g., 'Focus on counter-intuitive mechanisms' or 'Prioritize low-cost methods'"
