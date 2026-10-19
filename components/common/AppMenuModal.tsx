@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useExperiment } from '../../services';
 import { useToast } from '../../toast';
@@ -146,11 +146,27 @@ const AppMenuOverlay: React.FC<AppMenuOverlayProps> = ({
     menuItems,
     isAuthenticated
 }) => {
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [onClose]);
+
     return (
-        <div className="app-menu-overlay" onClick={onClose}>
+        <div
+            className="app-menu-overlay"
+            onClick={onClose}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="app-menu-title"
+        >
             <div className="app-menu-modal" onClick={e => e.stopPropagation()}>
                 <div className="app-menu-header">
-                    <h5 className="mb-0 fw-bold">
+                    <h5 id="app-menu-title" className="mb-0 fw-bold">
                         <i className="bi bi-grid-3x3-gap-fill me-2 text-primary-glow"></i>
                         SYSTEM MENU
                     </h5>
@@ -255,6 +271,11 @@ const AppMenuOverlay: React.FC<AppMenuOverlayProps> = ({
                     background: rgba(255, 255, 255, 0.05);
                     border-color: var(--border-color);
                     transform: translateX(5px);
+                }
+                .menu-item-btn:focus-visible {
+                    outline: 2px solid var(--primary-glow);
+                    outline-offset: 2px;
+                    background: rgba(255, 255, 255, 0.05);
                 }
                 .menu-item-icon {
                     width: 40px;
