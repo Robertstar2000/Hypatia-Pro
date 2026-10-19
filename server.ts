@@ -7,8 +7,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { currentUser, installSecureAuth, type AuthDb } from './secureAuth';
-// @ts-ignore
-import { installEntitlementMiddleware } from '../entitlementMiddleware.mts';
+import { installPaymentLinks } from './server/paymentLinks.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -49,7 +48,7 @@ async function startServer() {
 
   console.log(`Starting server in ${NODE_ENV} mode on port ${PORT}...`);
 
-  app.use(express.json({ limit: '50mb' }));
+  app.use((req, res, next) => req.path === '/api/billing/stripe-webhook' ? next() : express.json({ limit: '50mb' })(req, res, next));
   app.use(helmet());
 
   const authDb: AuthDb = {
@@ -59,7 +58,12 @@ async function startServer() {
     run: async (sql, params = []) => { const r = db.prepare(sql).run(...params); return { changes: r.changes, lastID: r.lastInsertRowid }; },
   };
   await installSecureAuth(app, authDb, 'password', true);
-  await installEntitlementMiddleware(app, authDb, 'hypatia', currentUser);
+  const { requirePaid } = await installPaymentLinks(app, {
+    authenticate: req => currentUser(authDb, req), product: 'hypatia',
+    paymentLink: 'https://buy.stripe.com/6oUdRa3Q74HIaYigiw7Vm04',
+  });
+  // A caller-supplied provider key uses the free BYO-key path.
+  app.use('/gapi', (req, res, next) => req.headers['x-goog-api-key'] || req.query.key ? next() : requirePaid(req, res, next));
 
   app.get('/health', (_req, res) => {
     try {
@@ -122,7 +126,7 @@ async function startServer() {
       const targetPath = req.originalUrl.replace(/^\/gapi/, '');
       const url = 'https://generativelanguage.googleapis.com' + targetPath;
       const fetchOpts: any = { method: req.method, headers: { 'Content-Type': 'application/json' } };
-      const apiKey = req.headers['x-goog-api-key'] || req.query.key;
+      const apiKey = req.headers['x-goog-api-key'] || req.query.key || process.env.GEMINI_API_KEY;
       if (apiKey) fetchOpts.headers['x-goog-api-key'] = apiKey;
       if (req.method !== 'GET' && req.method !== 'HEAD') fetchOpts.body = JSON.stringify(req.body);
       const r = await fetch(url, fetchOpts);
@@ -168,3 +172,4 @@ startServer().catch(err => {
   console.error('Failed to start server:', err);
   process.exit(1);
 });
+
