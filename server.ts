@@ -134,6 +134,11 @@ async function startServer() {
   });
 
 
+  // Unknown API requests must never fall through to the browser application.
+  app.use('/api', (_req, res) => {
+    res.status(404).json({ error: 'API endpoint not found' });
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
@@ -148,7 +153,7 @@ async function startServer() {
     });
   }
 
-  const server = app.listen(PORT, '127.0.0.1', () => {
+  const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`MIFECO Hub Server running on http://0.0.0.0:${PORT}`);
     console.log('Health check endpoint: http://0.0.0.0:' + PORT + '/api/health');
   });
