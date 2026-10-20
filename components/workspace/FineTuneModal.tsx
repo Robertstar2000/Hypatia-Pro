@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useExperiment } from '../../services';
 import { useToast } from '../../toast';
 import { STEP_SPECIFIC_TUNING_PARAMETERS } from '../../config';
@@ -37,12 +37,28 @@ export const FineTuneModal = ({ stepId, onClose }) => {
         addToast("Settings reset to default.", "info");
     }
 
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [onClose]);
+
     return (
-        <div className="modal" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+        <div
+            className="modal"
+            style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="fineTuneModalTitle"
+        >
             <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content">
                     <div className="modal-header">
-                        <h5 className="modal-title"><i className="bi bi-sliders me-2"></i>Fine-Tune AI for Step {stepId}</h5>
+                        <h5 className="modal-title" id="fineTuneModalTitle"><i className="bi bi-sliders me-2"></i>Fine-Tune AI for Step {stepId}</h5>
                         <button type="button" className="btn-close" onClick={onClose} aria-label="Close fine-tune modal"></button>
                     </div>
                     <div className="modal-body">
