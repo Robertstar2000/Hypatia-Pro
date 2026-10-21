@@ -119,8 +119,11 @@ export const MifecoLanding: React.FC<MifecoLandingProps> = ({ user, onOpenDataba
                     placeholder="Enter key..."
                   />
                   <button
+                    type="button"
                     onClick={() => setShowKey(!showKey)}
                     className="position-absolute end-0 top-50 translate-middle-y btn btn-link text-[#94a3b8] px-3"
+                    aria-label={showKey ? "Hide API key" : "Show API key"}
+                    title={showKey ? "Hide API key" : "Show API key"}
                   >
                     <i className={`bi bi-eye${showKey ? '-slash' : ''}`}></i>
                   </button>
