@@ -247,7 +247,7 @@ export const LandingPage = ({ setView }) => {
                                             </div>
                                             <div className="btn-group">
                                                 <button className="btn btn-sm btn-primary" onClick={() => selectExperiment(project.id)}>ACCESS</button>
-                                                <button className="btn btn-sm btn-outline-danger" onClick={() => deleteExperiment(project.id)}><i className="bi bi-trash"></i></button>
+                                                <button className="btn btn-sm btn-outline-danger" onClick={() => deleteExperiment(project.id)} aria-label={`Delete project ${project.title}`} title={`Delete project ${project.title}`}><i className="bi bi-trash"></i></button>
                                             </div>
                                         </div>
                                     ))}
