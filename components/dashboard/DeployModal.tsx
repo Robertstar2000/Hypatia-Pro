@@ -18,6 +18,16 @@ export const DeployModal = ({ experiment, onClose, onUpdateExperiment, onExportE
         return () => { isMounted.current = false; };
     }, []);
 
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [onClose]);
+
     const handleAction = async (step: number, forceRegenerate: boolean = false) => {
         if (isLoading) return;
         setActiveVirtualStep(step);
@@ -127,13 +137,13 @@ export const DeployModal = ({ experiment, onClose, onUpdateExperiment, onExportE
                         onChange={e => setGeneratedContent(e.target.value)}
                     ></textarea>
                      <div className="mt-2 d-flex justify-content-start">
-                        <button className="btn btn-sm btn-success me-2" onClick={handleSaveEdits}>
+                        <button className="btn btn-sm btn-success me-2" onClick={handleSaveEdits} aria-label="Save Edits" title="Save Edits">
                             <i className="bi bi-save me-1"></i> Save Edits
                         </button>
-                        <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => { navigator.clipboard.writeText(generatedContent); addToast('Copied to clipboard!', 'success'); }}>
+                        <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => { navigator.clipboard.writeText(generatedContent); addToast('Copied to clipboard!', 'success'); }} aria-label="Copy to Clipboard" title="Copy to Clipboard">
                             <i className="bi bi-clipboard me-1"></i> Copy
                         </button>
-                        <button className="btn btn-sm btn-outline-warning" onClick={() => handleAction(activeVirtualStep!, true)}>
+                        <button className="btn btn-sm btn-outline-warning" onClick={() => handleAction(activeVirtualStep!, true)} aria-label="Regenerate Content" title="Regenerate Content">
                             <i className="bi bi-arrow-clockwise me-1"></i> Regenerate
                         </button>
                     </div>
@@ -145,7 +155,7 @@ export const DeployModal = ({ experiment, onClose, onUpdateExperiment, onExportE
 
     const renderManualMode = () => (
         <>
-            <h5 className="modal-title">Deploy Your Research</h5>
+            <h5 className="modal-title" id="deployModalTitle">Deploy Your Research</h5>
             <p className="text-white-50 small">This project used the Manual Control workflow, ideal for rigorous scientific work.</p>
             <div className="d-grid gap-2 mt-3">
                 <button className="btn btn-outline-primary" onClick={() => handleAction(11)}>
@@ -158,7 +168,7 @@ export const DeployModal = ({ experiment, onClose, onUpdateExperiment, onExportE
 
     const renderAutomatedMode = () => (
         <>
-            <h5 className="modal-title">Share Your Exploration</h5>
+            <h5 className="modal-title" id="deployModalTitle">Share Your Exploration</h5>
             <p className="text-white-50 small">This project used the Automated Generation workflow, great for educational use.</p>
             <div className="d-grid gap-2 mt-3">
                 <button className="btn btn-outline-primary" onClick={() => handleAction(12)}>
@@ -170,12 +180,12 @@ export const DeployModal = ({ experiment, onClose, onUpdateExperiment, onExportE
     );
 
     return (
-         <div className="modal" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex={-1}>
-            <div className="modal-dialog modal-dialog-centered">
+         <div className="modal" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="deployModalTitle" onClick={onClose}>
+            <div className="modal-dialog modal-dialog-centered" onClick={e => e.stopPropagation()}>
                 <div className="modal-content">
                     <div className="modal-header">
                         {experiment.automationMode === 'manual' ? renderManualMode() : renderAutomatedMode()}
-                        <button type="button" className="btn-close" onClick={onClose} aria-label="Close deploy options"></button>
+                        <button type="button" className="btn-close" onClick={onClose} aria-label="Close deploy options" title="Close deploy options"></button>
                     </div>
                     <div className="modal-body">
                         {renderContent()}
