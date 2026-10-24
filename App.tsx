@@ -59,15 +59,11 @@ export const App = () => {
     const [isLabNotebookOpen, setLabNotebookOpen] = useState(false);
     
     const { addToast } = useToast();
-    const isInitialized = useRef(false);
-
     // Initial Data Load
     useEffect(() => {
         let mounted = true;
         
         const loadData = async () => {
-            if (isInitialized.current) return;
-            
             try {
                 if (!db || !db.experiments) {
                     throw new Error("Database schema missing.");
@@ -99,7 +95,6 @@ export const App = () => {
             } finally {
                 if (mounted) {
                     setIsLoading(false);
-                    isInitialized.current = true;
                 }
             }
         };

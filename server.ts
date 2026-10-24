@@ -7,7 +7,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { currentUser, installSecureAuth, type AuthDb } from './secureAuth';
-import { installEntitlementMiddleware } from '../entitlementMiddleware.mts';
+import { entitlementAuthorityFromEnv, installEntitlementMiddleware } from '../entitlementMiddleware.mts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -59,7 +59,8 @@ async function startServer() {
     run: async (sql, params = []) => { const r = db.prepare(sql).run(...params); return { changes: r.changes, lastID: r.lastInsertRowid }; },
   };
   await installSecureAuth(app, authDb, 'password', true);
-  await installEntitlementMiddleware(app, authDb, 'hypatia', currentUser);
+  const entitlementAuthority = entitlementAuthorityFromEnv();
+  installEntitlementMiddleware(app, authDb, 'hypatia', currentUser, entitlementAuthority);
 
   app.get('/health', (_req, res) => {
     try {
@@ -148,7 +149,7 @@ async function startServer() {
     });
   }
 
-  const server = app.listen(PORT, '127.0.0.1', () => {
+  const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`MIFECO Hub Server running on http://0.0.0.0:${PORT}`);
     console.log('Health check endpoint: http://0.0.0.0:' + PORT + '/api/health');
   });
