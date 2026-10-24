@@ -194,6 +194,11 @@ export const HelpModal = ({ onClose }) => {
                     background: rgba(255, 255, 255, 0.03);
                     color: white;
                 }
+                .help-nav-item:focus-visible {
+                    outline: 2px solid #00f2fe;
+                    outline-offset: 2px;
+                    background: rgba(0, 242, 254, 0.05);
+                }
                 .help-nav-item.active {
                     background: rgba(0, 242, 254, 0.08);
                     color: #00f2fe;
@@ -211,6 +216,10 @@ export const HelpModal = ({ onClose }) => {
                 .help-close-btn:hover {
                     background: rgba(239, 68, 68, 0.1);
                     border-color: #ef4444;
+                }
+                .help-close-btn:focus-visible {
+                    outline: 2px solid #ef4444;
+                    outline-offset: 2px;
                 }
                 .help-main {
                     flex: 1;
