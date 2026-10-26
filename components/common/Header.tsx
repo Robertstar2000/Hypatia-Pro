@@ -24,8 +24,10 @@ export const Header = ({ setView, activeView, onToggleNotebook }) => {
                             className="btn btn-link text-white p-2 ms-2 position-relative"
                             onClick={() => setShowMenu(true)}
                             aria-label="Open System Menu"
+                            aria-expanded={showMenu}
+                            aria-haspopup="dialog"
                             title="Open System Menu"
-                            style={{ fontSize: '1.5rem', transition: 'transform 0.2s', zIndex: 1051, cursor: 'pointer' }}
+                            style={{ fontSize: '1.5rem', transition: 'transform 0.2s', zIndex: 1051, cursor: 'pointer', outlineOffset: '2px' }}
                             onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
                             onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1.0)'}
                         >
