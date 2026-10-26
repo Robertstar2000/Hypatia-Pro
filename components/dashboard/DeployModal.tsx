@@ -18,6 +18,17 @@ export const DeployModal = ({ experiment, onClose, onUpdateExperiment, onExportE
         return () => { isMounted.current = false; };
     }, []);
 
+    // Handle Escape key to close modal
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [onClose]);
+
     const handleAction = async (step: number, forceRegenerate: boolean = false) => {
         if (isLoading) return;
         setActiveVirtualStep(step);
@@ -170,12 +181,12 @@ export const DeployModal = ({ experiment, onClose, onUpdateExperiment, onExportE
     );
 
     return (
-         <div className="modal" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex={-1}>
+         <div className="modal" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex={-1} role="dialog" aria-modal="true" aria-label="Deploy Research Modal">
             <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content">
                     <div className="modal-header">
                         {experiment.automationMode === 'manual' ? renderManualMode() : renderAutomatedMode()}
-                        <button type="button" className="btn-close" onClick={onClose}></button>
+                        <button type="button" className="btn-close" onClick={onClose} aria-label="Close modal"></button>
                     </div>
                     <div className="modal-body">
                         {renderContent()}

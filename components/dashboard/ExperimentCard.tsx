@@ -49,35 +49,35 @@ export const ExperimentCard = memo<ExperimentCardProps>(({
                 {isArchived ? (
                     <div className="btn-group w-100" role="group">
                          <button className="btn btn-sm btn-outline-light" onClick={() => selectExperiment(exp.id)}>
-                            <i className="bi bi-eye me-1"></i> View
+                            <i className="bi bi-eye me-1" aria-hidden="true"></i> View
                         </button>
                         <button className="btn btn-sm btn-outline-light" onClick={() => onUnarchive(exp)}>
-                             <i className="bi bi-box-arrow-in-up me-1"></i> Restore
+                             <i className="bi bi-box-arrow-in-up me-1" aria-hidden="true"></i> Restore
                         </button>
-                         <button className="btn btn-sm btn-outline-danger" onClick={() => deleteExperiment(exp.id)}>
-                            <i className="bi bi-trash"></i>
+                         <button className="btn btn-sm btn-outline-danger" onClick={() => deleteExperiment(exp.id)} title="Delete" aria-label={`Delete project ${exp.title}`}>
+                            <i className="bi bi-trash" aria-hidden="true"></i>
                         </button>
                     </div>
                 ) : (
                     <div className="d-flex flex-column gap-2">
                         {exp.currentStep >= 10 && exp.stepData[10]?.output ? (
                             <button className="btn btn-sm btn-success w-100" onClick={() => handleDeployClick(exp)}>
-                                <i className="bi bi-send-check-fill me-1"></i> Finalize & Deploy
+                                <i className="bi bi-send-check-fill me-1" aria-hidden="true"></i> Finalize & Deploy
                             </button>
                         ) : (
                             <button className="btn btn-sm btn-primary w-100" onClick={() => selectExperiment(exp.id)}>
-                                <i className="bi bi-play-circle-fill me-1"></i> Continue Research
+                                <i className="bi bi-play-circle-fill me-1" aria-hidden="true"></i> Continue Research
                             </button>
                         )}
                         <div className="d-flex gap-2">
-                            <button className="btn btn-sm btn-outline-secondary flex-grow-1" onClick={() => handleExport(exp)} title="Export JSON">
-                                <i className="bi bi-download"></i>
+                            <button className="btn btn-sm btn-outline-secondary flex-grow-1" onClick={() => handleExport(exp)} title="Export JSON" aria-label={`Export JSON for ${exp.title}`}>
+                                <i className="bi bi-download" aria-hidden="true"></i>
                             </button>
-                            <button className="btn btn-sm btn-outline-secondary flex-grow-1" onClick={() => onArchive(exp)} title="Archive">
-                                <i className="bi bi-archive"></i>
+                            <button className="btn btn-sm btn-outline-secondary flex-grow-1" onClick={() => onArchive(exp)} title="Archive" aria-label={`Archive project ${exp.title}`}>
+                                <i className="bi bi-archive" aria-hidden="true"></i>
                             </button>
-                            <button className="btn btn-sm btn-outline-danger flex-grow-1" onClick={() => deleteExperiment(exp.id)} title="Delete">
-                                <i className="bi bi-trash"></i>
+                            <button className="btn btn-sm btn-outline-danger flex-grow-1" onClick={() => deleteExperiment(exp.id)} title="Delete" aria-label={`Delete project ${exp.title}`}>
+                                <i className="bi bi-trash" aria-hidden="true"></i>
                             </button>
                         </div>
                     </div>

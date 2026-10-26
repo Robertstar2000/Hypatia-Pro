@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useExperiment } from '../../services';
 import { useToast } from '../../toast';
 import { STEP_SPECIFIC_TUNING_PARAMETERS } from '../../config';
@@ -7,6 +8,17 @@ import { STEP_SPECIFIC_TUNING_PARAMETERS } from '../../config';
 export const FineTuneModal = ({ stepId, onClose }) => {
     const { activeExperiment, updateExperiment } = useExperiment();
     const { addToast } = useToast();
+
+    // Handle Escape key to close modal
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [onClose]);
     
     // Defensive initialization for legacy data
     const initialSettings = (activeExperiment.fineTuneSettings && activeExperiment.fineTuneSettings[stepId]) 
@@ -37,13 +49,20 @@ export const FineTuneModal = ({ stepId, onClose }) => {
         addToast("Settings reset to default.", "info");
     }
 
-    return (
-        <div className="modal" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-            <div className="modal-dialog modal-dialog-centered">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h5 className="modal-title"><i className="bi bi-sliders me-2"></i>Fine-Tune AI for Step {stepId}</h5>
-                        <button type="button" className="btn-close" onClick={onClose}></button>
+    const modalContent = (
+        <div
+            className="modal show d-block"
+            style={{ backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', zIndex: 3000 }}
+            onClick={onClose}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="fine-tune-modal-title"
+        >
+            <div className="modal-dialog modal-dialog-centered" onClick={e => e.stopPropagation()}>
+                <div className="modal-content bg-dark border-secondary">
+                    <div className="modal-header border-secondary">
+                        <h5 id="fine-tune-modal-title" className="modal-title"><i className="bi bi-sliders me-2"></i>Fine-Tune AI for Step {stepId}</h5>
+                        <button type="button" className="btn-close btn-close-white" onClick={onClose} aria-label="Close fine-tune settings"></button>
                     </div>
                     <div className="modal-body">
                         {parameters.length > 0 ? parameters.map(param => (
@@ -109,7 +128,7 @@ export const FineTuneModal = ({ stepId, onClose }) => {
                         </div>
 
                     </div>
-                    <div className="modal-footer">
+                    <div className="modal-footer border-secondary">
                         <button type="button" className="btn btn-outline-secondary me-auto" onClick={handleReset}>Reset to Defaults</button>
                         <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
                         <button type="button" className="btn btn-primary" onClick={handleSave}>Save Settings</button>
@@ -118,4 +137,6 @@ export const FineTuneModal = ({ stepId, onClose }) => {
             </div>
         </div>
     );
+
+    return createPortal(modalContent, document.body);
 };
