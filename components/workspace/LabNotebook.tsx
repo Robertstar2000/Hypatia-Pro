@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useExperiment } from '../../services';
 import { useToast } from '../../toast';
 
@@ -6,11 +6,15 @@ export const LabNotebook = ({ isOpen, onClose }) => {
     const { activeExperiment, updateExperiment } = useExperiment();
     const [content, setContent] = useState(activeExperiment?.labNotebook || '');
     const { addToast } = useToast();
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     const experimentTemplate = `\n\n### EXPERIMENT OBSERVATION LOG\n\n*   **Date:** \n*   **Variable Changes:** \n*   **Anomalies:** \n*   **Initial Thoughts:** \n\n---\n\n`;
 
     useEffect(() => {
         setContent(activeExperiment?.labNotebook || '');
+        if (isOpen) {
+            setTimeout(() => textareaRef.current?.focus(), 50);
+        }
     }, [activeExperiment?.labNotebook, isOpen]);
 
     const handleSave = () => {
@@ -27,7 +31,7 @@ export const LabNotebook = ({ isOpen, onClose }) => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
                 onClose();
-            } else if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
                 e.preventDefault();
                 handleSave();
             }
@@ -61,12 +65,20 @@ export const LabNotebook = ({ isOpen, onClose }) => {
                     >
                         Insert Template
                     </button>
-                    <button className="btn btn-primary btn-sm me-2" onClick={handleSave}>Save</button>
+                    <button
+                        className="btn btn-primary btn-sm me-2"
+                        onClick={handleSave}
+                        title="Save notes (Ctrl+S / Cmd+S)"
+                        aria-label="Save lab notebook notes (Ctrl+S)"
+                    >
+                        Save <span className="opacity-75 small ms-1 d-none d-sm-inline">(Ctrl+S)</span>
+                    </button>
                     <button className="btn btn-outline-secondary btn-sm" onClick={onClose} title="Close Lab Notebook" aria-label="Close Lab Notebook"><i className="bi bi-x-lg"></i></button>
                 </div>
             </div>
             <div className="lab-notebook-body p-0">
                 <textarea
+                    ref={textareaRef}
                     id="lab-notebook-textarea"
                     aria-label="Lab Notebook observations and notes"
                     className="form-control lab-notebook-textarea border-0 rounded-0 p-3 h-100"
