@@ -48,36 +48,36 @@ export const ExperimentCard = memo<ExperimentCardProps>(({
                 </div>
 
                 {isArchived ? (
-                    <div className="btn-group w-100" role="group">
-                         <button className="btn btn-sm btn-outline-light" onClick={() => selectExperiment(exp.id)}>
+                    <div className="btn-group w-100" role="group" aria-label={`Actions for archived experiment ${exp.title}`}>
+                         <button className="btn btn-sm btn-outline-light" onClick={() => selectExperiment(exp.id)} title={`View experiment "${exp.title}"`} aria-label={`View experiment "${exp.title}"`}>
                             <i className="bi bi-eye me-1"></i> View
                         </button>
-                        <button className="btn btn-sm btn-outline-light" onClick={() => onUnarchive(exp)}>
+                        <button className="btn btn-sm btn-outline-light" onClick={() => onUnarchive(exp)} title={`Restore experiment "${exp.title}"`} aria-label={`Restore experiment "${exp.title}"`}>
                              <i className="bi bi-box-arrow-in-up me-1"></i> Restore
                         </button>
-                        <button className="btn btn-sm btn-outline-danger" onClick={() => deleteExperiment(exp.id)} title="Delete Experiment" aria-label="Delete Experiment">
+                        <button className="btn btn-sm btn-outline-danger" onClick={() => deleteExperiment(exp.id)} title={`Delete experiment "${exp.title}"`} aria-label={`Delete experiment "${exp.title}"`}>
                             <i className="bi bi-trash"></i>
                         </button>
                     </div>
                 ) : (
                     <div className="d-flex flex-column gap-2">
                         {exp.currentStep >= 10 && exp.stepData[10]?.output ? (
-                            <button className="btn btn-sm btn-success w-100" onClick={() => handleDeployClick(exp)}>
+                            <button className="btn btn-sm btn-success w-100" onClick={() => handleDeployClick(exp)} aria-label={`Finalize and deploy experiment "${exp.title}"`}>
                                 <i className="bi bi-send-check-fill me-1"></i> Finalize & Deploy
                             </button>
                         ) : (
-                            <button className="btn btn-sm btn-primary w-100" onClick={() => selectExperiment(exp.id)}>
+                            <button className="btn btn-sm btn-primary w-100" onClick={() => selectExperiment(exp.id)} aria-label={`Continue research on "${exp.title}"`}>
                                 <i className="bi bi-play-circle-fill me-1"></i> Continue Research
                             </button>
                         )}
                         <div className="d-flex gap-2">
-                            <button className="btn btn-sm btn-outline-secondary flex-grow-1" onClick={() => handleExport(exp)} title="Export JSON" aria-label="Export JSON">
+                            <button className="btn btn-sm btn-outline-secondary flex-grow-1" onClick={() => handleExport(exp)} title="Export JSON" aria-label={`Export JSON for experiment "${exp.title}"`}>
                                 <i className="bi bi-download"></i>
                             </button>
-                            <button className="btn btn-sm btn-outline-secondary flex-grow-1" onClick={() => onArchive(exp)} title="Archive Experiment" aria-label="Archive Experiment">
+                            <button className="btn btn-sm btn-outline-secondary flex-grow-1" onClick={() => onArchive(exp)} title="Archive Experiment" aria-label={`Archive experiment "${exp.title}"`}>
                                 <i className="bi bi-archive"></i>
                             </button>
-                            <button className="btn btn-sm btn-outline-danger flex-grow-1" onClick={() => deleteExperiment(exp.id)} title="Delete Experiment" aria-label="Delete Experiment">
+                            <button className="btn btn-sm btn-outline-danger flex-grow-1" onClick={() => deleteExperiment(exp.id)} title="Delete Experiment" aria-label={`Delete experiment "${exp.title}"`}>
                                 <i className="bi bi-trash"></i>
                             </button>
                         </div>

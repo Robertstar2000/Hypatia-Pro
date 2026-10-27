@@ -155,6 +155,15 @@ export const getPromptForStep = (
             ${feedbackInstruction}`;
             break;
 
+        case 6: // Runner / Data Synthesizer
+            basePrompt = `${role}
+            Generate synthetic CSV data for methodology:
+
+            METHODOLOGY: ${context.methodology_summary}
+
+            ${feedbackInstruction}`;
+            break;
+
         case 7: // Analysis
             expectJson = true;
             basePrompt = `${role}

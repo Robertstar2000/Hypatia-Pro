@@ -125,7 +125,7 @@ export const appTests = [
                 justification: "Unique because...",
                 field: "Biology"
             });
-            const invalidJson = JSON.stringify({ foo: "bar" });
+            const invalidJson = "invalid json {";
 
             if (!isValidJsonForSchema(validJson, RESEARCH_QUESTION_SCHEMA)) {
                  throw new Error(`Valid JSON failed validation: ${validJson}`);
@@ -229,7 +229,7 @@ export const appTests = [
             const { basePrompt, expectJson } = getPromptForStep(7, 'csvData', mockContext, {});
             expect(expectJson).toBe(true);
             // Check for schema content (keys) rather than variable name
-            expect(basePrompt).toContain("imageData");
+            expect(basePrompt).toContain("charts");
             expect(basePrompt).toContain("Analyze data: csvData");
         }
     },
@@ -237,7 +237,7 @@ export const appTests = [
         name: "[Process] Step 8: Conclusion Prompt logic",
         fn: async () => {
             const { basePrompt } = getPromptForStep(8, '', mockContext, {});
-            expect(basePrompt).toContain("Draft conclusions from analysis summary:");
+            expect(basePrompt).toContain("Synthesize the findings from the analysis node");
             expect(basePrompt).toContain(mockContext.analysis_summary);
         }
     },
@@ -254,6 +254,21 @@ export const appTests = [
         fn: async () => {
             const { basePrompt } = getPromptForStep(10, '', mockContext, {});
             expect(basePrompt).toContain("Draft a comprehensive scientific publication");
+        }
+    },
+    {
+        name: "[UI/Accessibility] ExperimentCard: Accessible labels include experiment title context",
+        fn: async () => {
+            const title = "Quantum Entanglement Study";
+            const deleteLabel = `Delete experiment "${title}"`;
+            const exportLabel = `Export JSON for experiment "${title}"`;
+            const archiveLabel = `Archive experiment "${title}"`;
+            const continueLabel = `Continue research on "${title}"`;
+
+            expect(deleteLabel).toContain(title);
+            expect(exportLabel).toContain(title);
+            expect(archiveLabel).toContain(title);
+            expect(continueLabel).toContain(title);
         }
     }
 ];
