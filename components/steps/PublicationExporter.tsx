@@ -181,19 +181,31 @@ export const FinalPublicationView = ({ publicationText, onRegenerate, showRegene
         <div>
             <div className="d-flex justify-content-end mb-2">
                 {showRegenerate &&
-                    <button className="btn btn-sm btn-outline-secondary me-auto" onClick={onRegenerate}>
-                        <i className="bi bi-arrow-clockwise me-1"></i> Regenerate with Agents
+                    <button
+                        type="button"
+                        className="btn btn-sm btn-outline-secondary me-auto"
+                        onClick={onRegenerate}
+                        aria-label="Regenerate publication manuscript with agents"
+                    >
+                        <i className="bi bi-arrow-clockwise me-1" aria-hidden="true"></i> Regenerate with Agents
                     </button>
                 }
                 <div className="btn-group">
-                    <button type="button" className="btn btn-sm btn-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                       <i className="bi bi-download me-1"></i> Download As
+                    <button
+                        type="button"
+                        className="btn btn-sm btn-secondary dropdown-toggle"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        aria-haspopup="true"
+                        aria-label="Download manuscript formats"
+                    >
+                       <i className="bi bi-download me-1" aria-hidden="true"></i> Download As
                     </button>
                     <ul className="dropdown-menu dropdown-menu-end">
-                        <li><a className="dropdown-item" href="#" onClick={() => handleDownload('md')}>Markdown (.md)</a></li>
-                        <li><a className="dropdown-item" href="#" onClick={() => handleDownload('txt')}>Plain Text (.txt)</a></li>
-                        <li><a className="dropdown-item" href="#" onClick={() => handleDownload('doc')}>Word Document (.doc)</a></li>
-                         <li><a className="dropdown-item" href="#" onClick={() => handleDownload('pdf')}>PDF (Print)</a></li>
+                        <li><button type="button" className="dropdown-item" onClick={() => handleDownload('md')}>Markdown (.md)</button></li>
+                        <li><button type="button" className="dropdown-item" onClick={() => handleDownload('txt')}>Plain Text (.txt)</button></li>
+                        <li><button type="button" className="dropdown-item" onClick={() => handleDownload('doc')}>Word Document (.doc)</button></li>
+                        <li><button type="button" className="dropdown-item" onClick={() => handleDownload('pdf')}>PDF (Print)</button></li>
                     </ul>
                 </div>
             </div>
