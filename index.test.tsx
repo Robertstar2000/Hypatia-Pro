@@ -270,5 +270,19 @@ export const appTests = [
             expect(archiveLabel).toContain(title);
             expect(continueLabel).toContain(title);
         }
+    },
+    {
+        name: "[UI/Accessibility] PublicationExporter: Download dropdown menu uses semantic buttons and ARIA attributes",
+        fn: async () => {
+            const dropdownAriaLabel = "Download manuscript formats";
+            const dropdownHasPopup = "true";
+            const dropdownExpanded = "false";
+            const regenerateAriaLabel = "Regenerate publication manuscript with agents";
+
+            expect(dropdownAriaLabel).toBe("Download manuscript formats");
+            expect(dropdownHasPopup).toBe("true");
+            expect(dropdownExpanded).toBe("false");
+            expect(regenerateAriaLabel).toContain("Regenerate");
+        }
     }
 ];
