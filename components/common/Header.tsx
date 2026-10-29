@@ -26,6 +26,7 @@ export const Header = ({ setView, activeView, onToggleNotebook }) => {
                             aria-label="Open System Menu"
                             aria-expanded={showMenu}
                             aria-haspopup="dialog"
+                            aria-controls="app-menu-modal"
                             title="Open System Menu"
                             style={{ fontSize: '1.5rem', transition: 'transform 0.2s', zIndex: 1051, cursor: 'pointer', outlineOffset: '2px' }}
                             onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.1)'}

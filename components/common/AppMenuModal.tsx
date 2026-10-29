@@ -158,6 +158,7 @@ const AppMenuOverlay: React.FC<AppMenuOverlayProps> = ({
 
     return (
         <div
+            id="app-menu-modal"
             className="app-menu-overlay"
             onClick={onClose}
             role="dialog"
