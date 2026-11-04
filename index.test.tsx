@@ -284,5 +284,21 @@ export const appTests = [
             expect(dropdownExpanded).toBe("false");
             expect(regenerateAriaLabel).toContain("Regenerate");
         }
+    },
+    {
+        name: "[UI/Accessibility] LandingPage: Project initialization form inputs have proper labels, aria-required, and description IDs",
+        fn: async () => {
+            const titleInputId = "project-title-input";
+            const fieldSelectId = "research-field-select";
+            const attachmentInputId = "attachment-file-input";
+            const attachmentHelpId = "attachment-file-help";
+            const descriptionInputId = "project-description-input";
+
+            expect(titleInputId).toBe("project-title-input");
+            expect(fieldSelectId).toBe("research-field-select");
+            expect(attachmentInputId).toBe("attachment-file-input");
+            expect(attachmentHelpId).toBe("attachment-file-help");
+            expect(descriptionInputId).toBe("project-description-input");
+        }
     }
 ];

@@ -154,24 +154,32 @@ export const LandingPage = ({ setView }) => {
 
                              <form onSubmit={handleStart}>
                                 <div className="mb-3">
-                                    <label className="form-label fw-bold small text-uppercase text-white-50">1. Project Title</label>
+                                    <label htmlFor="project-title-input" className="form-label fw-bold small text-uppercase text-white-50">
+                                        1. Project Title <span className="text-danger" aria-hidden="true">*</span>
+                                    </label>
                                     <input
+                                        id="project-title-input"
                                         type="text"
                                         className="form-control"
                                         placeholder="E.g., The Impact of Sleep on Cognitive Load"
                                         value={title}
                                         onChange={e => setTitle(e.target.value)}
                                         required
+                                        aria-required="true"
                                     />
                                 </div>
 
                                 <div className="mb-3">
-                                   <label className="form-label fw-bold small text-uppercase text-white-50">2. Research Field</label>
+                                   <label htmlFor="research-field-select" className="form-label fw-bold small text-uppercase text-white-50">
+                                       2. Research Field <span className="text-danger" aria-hidden="true">*</span>
+                                   </label>
                                    <select
+                                       id="research-field-select"
                                        className="form-select"
                                        value={field}
                                        onChange={e => setField(e.target.value)}
                                        required
+                                       aria-required="true"
                                    >
                                        <option value="" disabled>Select Field</option>
                                        {SCIENTIFIC_FIELDS.map(f => <option key={f} value={f}>{f}</option>)}
@@ -179,38 +187,44 @@ export const LandingPage = ({ setView }) => {
                                </div>
 
                                <div className="mb-4">
-                                    <label className="form-label fw-bold small text-uppercase text-white-50">3. Attach Context (Optional)</label>
+                                    <label htmlFor="attachment-file-input" className="form-label fw-bold small text-uppercase text-white-50">3. Attach Context (Optional)</label>
                                     <input
+                                        id="attachment-file-input"
                                         type="file"
                                         className="form-control form-control-sm border-secondary"
                                         accept=".txt,.md,.csv,.json,.js,.py"
                                         onChange={handleAttachment}
                                         disabled={isAnalyzingFile}
                                         ref={fileInputRef}
+                                        aria-describedby="attachment-file-help"
                                     />
-                                    <div className="form-text text-white-50">
+                                    <div id="attachment-file-help" className="form-text text-white-50">
                                         {isAnalyzingFile ?
-                                            <span className="text-primary-glow"><span className="spinner-border spinner-border-sm me-2"></span>Extracting knowledge graph...</span> :
+                                            <span className="text-primary-glow"><span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Extracting knowledge graph...</span> :
                                             "Upload notes or data (.txt, .md, .csv). The AI will extract facts relevant to your Title and append them below."
                                         }
                                     </div>
                                </div>
 
                                 <div className="mb-3">
-                                     <label className="form-label fw-bold small text-uppercase text-white-50">4. Detailed Description</label>
+                                     <label htmlFor="project-description-input" className="form-label fw-bold small text-uppercase text-white-50">
+                                         4. Detailed Description <span className="text-danger" aria-hidden="true">*</span>
+                                     </label>
                                      <textarea
+                                        id="project-description-input"
                                         className="form-control"
                                         placeholder="Describe your idea..."
                                         value={description}
                                         onChange={e => setDescription(e.target.value)}
                                         required
+                                        aria-required="true"
                                         rows={10}
                                     ></textarea>
                                 </div>
 
                                 <div className="alert alert-warning border-warning border-opacity-25 bg-warning bg-opacity-10 p-3 mb-4 rounded-3 small">
                                     <div className="d-flex gap-2">
-                                        <i className="bi bi-exclamation-circle-fill fs-5"></i>
+                                        <i className="bi bi-exclamation-circle-fill fs-5" aria-hidden="true"></i>
                                         <div>
                                             <strong>Research Integrity Protocol:</strong>
                                             <p className="mb-2 mt-1">
@@ -224,7 +238,11 @@ export const LandingPage = ({ setView }) => {
                                 </div>
 
                                  <button type="submit" className="btn btn-primary btn-lg w-100" disabled={keyStatus.type === 'none' || isAnalyzingFile}>
-                                    Start Discovery Journey
+                                    {isAnalyzingFile ? (
+                                        <span><span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Analyzing Document...</span>
+                                    ) : (
+                                        <span>Start Discovery Journey</span>
+                                    )}
                                  </button>
                              </form>
                         </div>
