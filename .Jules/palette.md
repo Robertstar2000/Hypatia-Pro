@@ -11,3 +11,7 @@
 ## 2026-10-28 - Dropdown Actions with Hash Links vs Semantic Buttons
 **Learning:** Using `<a href="#">` for dropdown menu triggers or items causes unexpected page scrolling / URL hash changes when clicked in single-page applications.
 **Action:** Always use `<button type="button">` for dropdown items that trigger JavaScript functions rather than navigating to a page, and include proper ARIA state attributes (`aria-expanded`, `aria-haspopup`).
+
+## 2026-11-04 - Contextual Labels on Protocol Blocker Resolution Actions
+**Learning:** In alert panels or issue lists (like BlockerDisplay), generic action button labels like "RESOLVE" cause accessibility barriers when navigated out of context by screen reader users (e.g. rotor / button lists), who hear repeated ambiguous "RESOLVE" buttons.
+**Action:** Always provide explicit, contextual `aria-label` and `title` attributes on repetitive list action buttons (e.g., `aria-label={\`Resolve blocker: \${blocker.msg}\`}`) and mark the containing alert card as a landmark `role="region"` with a descriptive `aria-label`.

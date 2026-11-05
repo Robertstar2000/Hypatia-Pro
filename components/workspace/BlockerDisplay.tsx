@@ -13,11 +13,11 @@ export const BlockerDisplay: React.FC<BlockerDisplayProps> = ({ blockers, onReso
     const criticalCount = blockers.filter(b => b.severity === 'critical' && !b.resolved).length;
 
     return (
-        <div className="blocker-system-alert mb-4">
+        <div className="blocker-system-alert mb-4" role="region" aria-label="Protocol blockers alert">
             <div className={`card border-${criticalCount > 0 ? 'danger' : 'warning'} bg-black bg-opacity-50 shadow-lg overflow-hidden`}>
                 <div className={`card-header bg-${criticalCount > 0 ? 'danger' : 'warning'} text-black py-2 d-flex align-items-center justify-content-between`}>
-                    <div className="fw-bold small ls-1">
-                        <i className={`bi ${criticalCount > 0 ? 'bi-exclamation-octagon-fill' : 'bi-exclamation-triangle-fill'} me-2`}></i>
+                    <div id="blocker-alert-heading" className="fw-bold small ls-1">
+                        <i className={`bi ${criticalCount > 0 ? 'bi-exclamation-octagon-fill' : 'bi-exclamation-triangle-fill'} me-2`} aria-hidden="true"></i>
                         {criticalCount > 0 ? 'CRITICAL PROTOCOL BLOCKER' : 'SYSTEM WARNING'}
                     </div>
                     <span className="badge bg-black bg-opacity-25 text-white">{blockers.length} ISSUE(S)</span>
@@ -27,7 +27,7 @@ export const BlockerDisplay: React.FC<BlockerDisplayProps> = ({ blockers, onReso
                         {blockers.map((blocker) => (
                             <li key={blocker.id} className={`list-group-item bg-transparent border-secondary border-opacity-10 d-flex align-items-start p-3 ${blocker.resolved ? 'opacity-50' : ''}`}>
                                 <div className={`me-3 text-${blocker.severity === 'critical' ? 'danger' : 'warning'}`}>
-                                    <i className={`bi ${blocker.resolved ? 'bi-check-circle' : 'bi-dot'} fs-4`}></i>
+                                    <i className={`bi ${blocker.resolved ? 'bi-check-circle' : 'bi-dot'} fs-4`} aria-hidden="true"></i>
                                 </div>
                                 <div className="flex-grow-1">
                                     <div className={`fw-bold small mb-1 ${blocker.resolved ? 'text-decoration-line-through text-white-50' : 'text-white'}`}>
@@ -41,6 +41,8 @@ export const BlockerDisplay: React.FC<BlockerDisplayProps> = ({ blockers, onReso
                                     <button
                                         className="btn btn-xs btn-outline-light ms-2"
                                         onClick={() => onResolve(blocker.id)}
+                                        aria-label={`Resolve blocker: ${blocker.msg}`}
+                                        title={`Resolve blocker: ${blocker.msg}`}
                                     >
                                         RESOLVE
                                     </button>
