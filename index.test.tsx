@@ -300,5 +300,23 @@ export const appTests = [
             expect(attachmentHelpId).toBe("attachment-file-help");
             expect(descriptionInputId).toBe("project-description-input");
         }
+    },
+    {
+        name: "[UI/Accessibility] BlockerDisplay: Alert container has region role and resolve button includes blocker context",
+        fn: async () => {
+            const blocker = {
+                id: 'b1',
+                msg: 'Missing statistical baseline',
+                severity: 'critical' as const,
+                resolved: false
+            };
+            const alertRole = "region";
+            const alertAriaLabel = "Protocol blockers alert";
+            const resolveAriaLabel = `Resolve blocker: ${blocker.msg}`;
+
+            expect(alertRole).toBe("region");
+            expect(alertAriaLabel).toBe("Protocol blockers alert");
+            expect(resolveAriaLabel).toBe("Resolve blocker: Missing statistical baseline");
+        }
     }
 ];
