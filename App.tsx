@@ -1,3 +1,4 @@
+import { BillingAccess } from './components/BillingAccess';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Experiment } from './config';
@@ -278,12 +279,13 @@ export const App = () => {
     }
 
     if (view === 'auth') {
-        return <AuthView onAuthSuccess={(u) => { setUser(u); setView('mifeco-landing'); }} />;
+        return <><AuthView onAuthSuccess={(u) => { setUser(u); setView('mifeco-landing'); }} /><BillingAccess /></>;
     }
 
     return (
         <ErrorBoundary>
             <ExperimentContext.Provider value={contextValue}>
+                <BillingAccess />
                 {view !== 'mifeco-landing' && <Header setView={setView} activeView={view} onToggleNotebook={() => setLabNotebookOpen(p => !p)} />}
                 <main className={view === 'mifeco-landing' ? "" : "container-fluid mt-4"} style={{ minHeight: view === 'mifeco-landing' ? '100vh' : '80vh' }}>
                     {view === 'mifeco-landing' && (
@@ -316,3 +318,4 @@ export const App = () => {
         </ErrorBoundary>
     );
 };
+
